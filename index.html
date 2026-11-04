@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HRA Geo Targeting Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400&family=Roboto+Slab:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ============================================================
+   Design tokens — mirror the Figma variables 1:1
+   (Primitives → Color [Light/Dark] → Spacing/Radius)
+   ============================================================ */
+:root {
+  /* primitives */
+  --prim-navy-50:#EEF3FA; --prim-navy-200:#ADC4E6; --prim-navy-300:#7A9FD3; --prim-navy-400:#4A78BC; --prim-navy-500:#1F55A3; --prim-navy-600:#0A3F87; --prim-navy-700:#002E70; --prim-navy-800:#00245A; --prim-navy-900:#001F3F; --prim-navy-950:#00142A;
+  --prim-gold-50:#FFF9E6; --prim-gold-300:#FFDD73; --prim-gold-400:#FFD309; --prim-gold-500:#FFC631; --prim-gold-600:#E6A800; --prim-gold-700:#8A6500;
+  --prim-gray-0:#FFFFFF; --prim-gray-50:#F4F6F9; --prim-gray-100:#E8ECF1; --prim-gray-200:#D5DCE5; --prim-gray-300:#B8C2CF; --prim-gray-400:#8A96A6; --prim-gray-500:#667385; --prim-gray-600:#4C5767; --prim-gray-700:#353E4B; --prim-gray-800:#222A35; --prim-gray-850:#1A212B; --prim-gray-900:#141A22; --prim-gray-950:#0D1117;
+  --prim-green-50:#E8F7F1; --prim-green-300:#6FD3AE; --prim-green-500:#0DA574; --prim-green-700:#087553; --prim-green-900:#0B3D2C;
+  --prim-red-50:#FDECEA; --prim-red-300:#F28B82; --prim-red-500:#D93025; --prim-red-700:#A52219; --prim-red-900:#4A1410;
+  --prim-amber-50:#FFF4E0; --prim-amber-300:#FFC46B; --prim-amber-500:#F29900; --prim-amber-700:#9A5B00; --prim-amber-900:#3D2600;
+
+  /* semantic — Light */
+  --color-bg-canvas:var(--prim-gray-50); --color-bg-surface:var(--prim-gray-0); --color-bg-subtle:var(--prim-gray-50); --color-bg-muted:var(--prim-gray-100);
+  --color-bg-brand:var(--prim-navy-700); --color-bg-brand-hover:var(--prim-navy-800); --color-bg-brand-pressed:var(--prim-navy-900); --color-bg-brand-subtle:var(--prim-navy-50);
+  --color-bg-accent:var(--prim-gold-500); --color-bg-accent-hover:var(--prim-gold-400); --color-bg-accent-pressed:var(--prim-gold-600);
+  --color-bg-sidebar:var(--prim-navy-900); --color-bg-hover:var(--prim-gray-50); --color-bg-selected:var(--prim-navy-50); --color-bg-disabled:var(--prim-gray-100);
+  --color-bg-success-subtle:var(--prim-green-50); --color-bg-warning-subtle:var(--prim-amber-50); --color-bg-danger-subtle:var(--prim-red-50); --color-bg-success:var(--prim-green-500);
+  --color-text-primary:var(--prim-gray-900); --color-text-secondary:var(--prim-gray-600); --color-text-tertiary:var(--prim-gray-500); --color-text-disabled:var(--prim-gray-400);
+  --color-text-on-brand:var(--prim-gray-0); --color-text-on-accent:var(--prim-navy-900); --color-text-on-sidebar:var(--prim-gray-0); --color-text-on-sidebar-muted:var(--prim-navy-200);
+  --color-text-brand:var(--prim-navy-700); --color-text-link:var(--prim-navy-600); --color-text-accent:var(--prim-gold-700);
+  --color-text-success:var(--prim-green-700); --color-text-warning:var(--prim-amber-700); --color-text-danger:var(--prim-red-700);
+  --color-border-default:var(--prim-gray-200); --color-border-subtle:var(--prim-gray-100); --color-border-strong:var(--prim-gray-400); --color-border-brand:var(--prim-navy-700); --color-border-focus:var(--prim-navy-500); --color-border-accent:var(--prim-gold-500);
+  --color-border-danger:var(--prim-red-500); --color-border-success:var(--prim-green-500); --color-border-warning:var(--prim-amber-500);
+  --color-icon-secondary:var(--prim-gray-500);
+
+  /* spacing / radius */
+  --space-2xs:2px; --space-xs:4px; --space-sm:8px; --space-md:12px; --space-lg:16px; --space-xl:20px; --space-2xl:24px; --space-3xl:32px; --space-4xl:40px; --space-5xl:48px;
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+
+  /* effects */
+  --elevation-sm:0 1px 2px rgba(0,20,51,.08);
+  --elevation-md:0 2px 6px rgba(0,20,51,.08),0 1px 2px rgba(0,20,51,.06);
+  --elevation-lg:0 12px 28px rgba(0,20,51,.14),0 4px 8px rgba(0,20,51,.06);
+  --focus-ring:0 0 0 3px rgba(31,84,163,.35);
+
+  /* type */
+  --font-ui:'Roboto',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-display:'Roboto Slab',Georgia,serif;
+  --font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;
+  color-scheme: light;
+}
+/* Dark mode — same token names, different aliases (Figma "Dark" mode) */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  color-scheme: dark;
+  --color-bg-canvas:var(--prim-gray-950); --color-bg-surface:var(--prim-gray-900); --color-bg-subtle:var(--prim-gray-850); --color-bg-muted:var(--prim-gray-800);
+  --color-bg-brand:var(--prim-navy-400); --color-bg-brand-hover:var(--prim-navy-300); --color-bg-brand-pressed:var(--prim-navy-200); --color-bg-brand-subtle:var(--prim-navy-950);
+  --color-bg-accent-hover:var(--prim-gold-300);
+  --color-bg-sidebar:var(--prim-gray-950); --color-bg-hover:var(--prim-gray-800); --color-bg-selected:var(--prim-navy-950); --color-bg-disabled:var(--prim-gray-800);
+  --color-bg-success-subtle:var(--prim-green-900); --color-bg-warning-subtle:var(--prim-amber-900); --color-bg-danger-subtle:var(--prim-red-900);
+  --color-text-primary:var(--prim-gray-50); --color-text-secondary:var(--prim-gray-300); --color-text-tertiary:var(--prim-gray-400); --color-text-disabled:var(--prim-gray-600);
+  --color-text-on-brand:var(--prim-gray-950); --color-text-on-sidebar-muted:var(--prim-gray-400);
+  --color-text-brand:var(--prim-navy-200); --color-text-link:var(--prim-navy-300); --color-text-accent:var(--prim-gold-400);
+  --color-text-success:var(--prim-green-300); --color-text-warning:var(--prim-amber-300); --color-text-danger:var(--prim-red-300);
+  --color-border-default:var(--prim-gray-700); --color-border-subtle:var(--prim-gray-800); --color-border-strong:var(--prim-gray-500); --color-border-brand:var(--prim-navy-300); --color-border-focus:var(--prim-navy-300);
+  --color-border-danger:var(--prim-red-300); --color-border-success:var(--prim-green-300); --color-border-warning:var(--prim-amber-300);
+  --color-icon-secondary:var(--prim-gray-400);
+}}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg-canvas:var(--prim-gray-950); --color-bg-surface:var(--prim-gray-900); --color-bg-subtle:var(--prim-gray-850); --color-bg-muted:var(--prim-gray-800);
+  --color-bg-brand:var(--prim-navy-400); --color-bg-brand-hover:var(--prim-navy-300); --color-bg-brand-pressed:var(--prim-navy-200); --color-bg-brand-subtle:var(--prim-navy-950);
+  --color-bg-accent-hover:var(--prim-gold-300);
+  --color-bg-sidebar:var(--prim-gray-950); --color-bg-hover:var(--prim-gray-800); --color-bg-selected:var(--prim-navy-950); --color-bg-disabled:var(--prim-gray-800);
+  --color-bg-success-subtle:var(--prim-green-900); --color-bg-warning-subtle:var(--prim-amber-900); --color-bg-danger-subtle:var(--prim-red-900);
+  --color-text-primary:var(--prim-gray-50); --color-text-secondary:var(--prim-gray-300); --color-text-tertiary:var(--prim-gray-400); --color-text-disabled:var(--prim-gray-600);
+  --color-text-on-brand:var(--prim-gray-950); --color-text-on-sidebar-muted:var(--prim-gray-400);
+  --color-text-brand:var(--prim-navy-200); --color-text-link:var(--prim-navy-300); --color-text-accent:var(--prim-gold-400);
+  --color-text-success:var(--prim-green-300); --color-text-warning:var(--prim-amber-300); --color-text-danger:var(--prim-red-300);
+  --color-border-default:var(--prim-gray-700); --color-border-subtle:var(--prim-gray-800); --color-border-strong:var(--prim-gray-500); --color-border-brand:var(--prim-navy-300); --color-border-focus:var(--prim-navy-300);
+  --color-border-danger:var(--prim-red-300); --color-border-success:var(--prim-green-300); --color-border-warning:var(--prim-amber-300);
+  --color-icon-secondary:var(--prim-gray-400);
+}
+
+/* ============ Base ============ */
+*,*::before,*::after { box-sizing:border-box; }
+html,body { height:100%; margin:0; }
+body { font:400 14px/20px var(--font-ui); color:var(--color-text-primary); background:var(--color-bg-canvas); -webkit-font-smoothing:antialiased; }
+button,input { font:inherit; color:inherit; }
+:focus-visible { outline:none; box-shadow:var(--focus-ring); }
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* Type styles (Figma text styles) */
+.t-display { font:700 32px/40px var(--font-display); letter-spacing:-.5px; color:var(--color-text-brand); margin:0; }
+.t-heading-lg { font:600 20px/28px var(--font-display); margin:0; }
+.t-heading-md { font:600 16px/24px var(--font-ui); margin:0; }
+.t-body-lg { font:400 16px/24px var(--font-ui); color:var(--color-text-secondary); margin:0; }
+.t-body-sm { font:400 12px/16px var(--font-ui); }
+.t-label-md { font:500 14px/20px var(--font-ui); letter-spacing:.1px; }
+.t-label-sm { font:500 12px/16px var(--font-ui); letter-spacing:.2px; }
+.t-overline { font:700 11px/16px var(--font-ui); letter-spacing:.8px; text-transform:uppercase; color:var(--color-text-tertiary); }
+.t-data { font:400 13px/20px var(--font-mono); }
+.t-stat { font:700 28px/36px var(--font-display); letter-spacing:-.5px; }
+.muted { color:var(--color-text-secondary); } .faint { color:var(--color-text-tertiary); }
+
+/* ============ App shell ============ */
+.app { display:grid; grid-template-rows:64px 1fr; height:100vh; }
+.header { display:flex; align-items:center; gap:var(--space-lg); padding:0 var(--space-2xl); background:var(--color-bg-sidebar); color:var(--color-text-on-sidebar); }
+.header img { height:40px; width:auto; display:block; }
+.header .divider { width:1px; height:28px; background:var(--color-text-on-sidebar-muted); opacity:.4; }
+.header .spacer { flex:1; }
+.file-pill { display:none; align-items:center; gap:var(--space-sm); padding:var(--space-xs) var(--space-md); border-radius:var(--radius-full); background:var(--prim-navy-800); font:500 12px/16px var(--font-ui); max-width:46vw; }
+.file-pill.show { display:flex; }
+.file-pill span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-pill .meta { color:var(--color-text-on-sidebar-muted); font-weight:400; flex:none; }
+.body { display:grid; grid-template-columns:260px 1fr; min-height:0; }
+
+/* Step nav */
+.nav { background:var(--color-bg-surface); border-right:1px solid var(--color-border-default); padding:var(--space-2xl) var(--space-lg); display:flex; flex-direction:column; gap:var(--space-xs); overflow:auto; }
+.progress { height:4px; border-radius:2px; background:var(--color-bg-muted); margin:var(--space-xs) 0 var(--space-md); overflow:hidden; }
+.progress > i { display:block; height:100%; background:var(--color-bg-accent); transition:width .3s ease; }
+.step { display:flex; align-items:center; gap:var(--space-md); padding:var(--space-sm); border-radius:var(--radius-md); border:0; background:none; text-align:left; width:100%; cursor:default; }
+.step .dot { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; flex:none; font:500 14px/1 var(--font-ui); border:1.5px solid var(--color-border-strong); color:var(--color-text-tertiary); background:var(--color-bg-surface); }
+.step .title { font:500 14px/20px var(--font-ui); color:var(--color-text-tertiary); display:block; }
+.step .cap { font:400 12px/16px var(--font-ui); color:var(--color-text-disabled); display:block; }
+.step.current { background:var(--color-bg-brand-subtle); }
+.step.current .dot { background:var(--color-bg-accent); border-color:transparent; color:var(--color-text-on-accent); }
+.step.current .title { color:var(--color-text-primary); } .step.current .cap { color:var(--color-text-secondary); }
+.step.done { cursor:pointer; }
+.step.done:hover { background:var(--color-bg-hover); }
+.step.done .dot { background:var(--color-bg-success); border-color:transparent; color:#fff; }
+.step.done .title { color:var(--color-text-primary); } .step.done .cap { color:var(--color-text-secondary); }
+.nav .grow { flex:1; }
+.privacy { padding:var(--space-md) var(--space-lg); border-radius:var(--radius-md); background:var(--color-bg-subtle); }
+.privacy b { font:500 12px/16px var(--font-ui); display:block; margin-bottom:2px; }
+
+/* Main */
+.main { display:grid; grid-template-rows:1fr auto; min-height:0; position:relative; }
+.scroll { overflow:auto; padding:var(--space-4xl) var(--space-3xl); }
+.column { max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:var(--space-2xl); }
+.question { display:flex; flex-direction:column; gap:var(--space-sm); }
+.bar { display:flex; align-items:center; gap:var(--space-md); padding:var(--space-lg) var(--space-3xl); background:var(--color-bg-surface); border-top:1px solid var(--color-border-default); }
+.bar .summary { flex:1; text-align:right; color:var(--color-text-secondary); }
+
+/* ============ Components ============ */
+/* Button */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:var(--space-sm); height:40px; padding:0 var(--space-lg); border-radius:var(--radius-md); border:1px solid transparent; font:500 14px/20px var(--font-ui); cursor:pointer; transition:background .12s, border-color .12s, transform .05s; white-space:nowrap; }
+.btn svg { width:18px; height:18px; flex:none; }
+.btn:active:not(:disabled) { transform:translateY(1px); }
+.btn-primary { background:var(--color-bg-brand); color:var(--color-text-on-brand); }
+.btn-primary:hover:not(:disabled) { background:var(--color-bg-brand-hover); }
+.btn-primary:active:not(:disabled) { background:var(--color-bg-brand-pressed); }
+.btn-accent { background:var(--color-bg-accent); color:var(--color-text-on-accent); }
+.btn-accent:hover:not(:disabled) { background:var(--color-bg-accent-hover); }
+.btn-accent:active:not(:disabled) { background:var(--color-bg-accent-pressed); }
+.btn-secondary { background:var(--color-bg-surface); color:var(--color-text-brand); border-color:var(--color-border-strong); }
+.btn-secondary:hover:not(:disabled) { background:var(--color-bg-hover); }
+.btn-ghost { background:transparent; color:var(--color-text-brand); }
+.btn-ghost:hover:not(:disabled) { background:var(--color-bg-hover); }
+.btn:disabled { background:var(--color-bg-disabled); color:var(--color-text-disabled); border-color:transparent; cursor:not-allowed; }
+.btn-block { width:100%; }
+.link { background:none; border:0; padding:0; color:var(--color-text-link); font:500 14px/20px var(--font-ui); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.link:hover { color:var(--color-text-brand); }
+
+/* Choice tile */
+.grid2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-lg); }
+.stack { display:flex; flex-direction:column; gap:var(--space-md); }
+.tile { display:flex; align-items:center; gap:var(--space-md); padding:var(--space-lg); border-radius:var(--radius-lg); border:1px solid var(--color-border-default); background:var(--color-bg-surface); text-align:left; cursor:pointer; width:100%; transition:background .12s, border-color .12s, box-shadow .12s; }
+.tile:hover:not([aria-disabled="true"]) { background:var(--color-bg-hover); border-color:var(--color-border-strong); box-shadow:var(--elevation-md); }
+.tile[aria-checked="true"] { background:var(--color-bg-selected); border:2px solid var(--color-border-brand); padding:calc(var(--space-lg) - 1px); }
+.tile[aria-disabled="true"] { cursor:not-allowed; opacity:.55; }
+.ctl { width:22px; height:22px; flex:none; display:grid; place-items:center; border:1.5px solid var(--color-border-strong); background:var(--color-bg-surface); }
+.ctl.radio { border-radius:50%; } .ctl.check { border-radius:5px; }
+.tile:hover .ctl { border-color:var(--color-border-brand); }
+.tile[aria-checked="true"] .ctl { background:var(--color-bg-brand); border-color:transparent; }
+.tile[aria-checked="true"] .ctl.radio::after { content:''; width:8px; height:8px; border-radius:50%; background:var(--color-bg-surface); }
+.ctl svg { width:16px; height:16px; color:var(--color-text-on-brand); display:none; }
+.tile[aria-checked="true"] .ctl svg { display:block; }
+.tile .tx { flex:1; min-width:0; }
+.tile .ttl { display:flex; align-items:center; gap:var(--space-sm); font:600 16px/24px var(--font-ui); }
+.tile .cap { color:var(--color-text-secondary); display:block; }
+.tag { padding:var(--space-2xs) var(--space-sm); border-radius:var(--radius-full); background:var(--color-bg-accent); color:var(--color-text-on-accent); font:500 12px/16px var(--font-ui); }
+
+/* Search field */
+.search { display:flex; align-items:center; gap:var(--space-sm); height:40px; padding:0 var(--space-md); border:1px solid var(--color-border-default); border-radius:var(--radius-md); background:var(--color-bg-surface); transition:border-color .12s, box-shadow .12s; }
+.search:hover { border-color:var(--color-border-strong); }
+.search:focus-within { border:2px solid var(--color-border-focus); padding:0 calc(var(--space-md) - 1px); box-shadow:var(--focus-ring); }
+.search svg { width:16px; height:16px; color:var(--color-icon-secondary); flex:none; }
+.search input { flex:1; border:0; outline:none; background:transparent; min-width:0; }
+.search input::placeholder { color:var(--color-text-tertiary); }
+.search .clear { border:0; background:none; padding:2px; cursor:pointer; color:var(--color-icon-secondary); display:none; border-radius:4px; }
+.search.has-value .clear { display:grid; }
+
+/* Option row (checkbox list) */
+.opt { display:flex; align-items:center; gap:var(--space-sm); padding:var(--space-sm); border-radius:var(--radius-sm); cursor:pointer; min-height:36px; border:0; background:none; width:100%; text-align:left; }
+.opt:hover { background:var(--color-bg-hover); }
+.opt .box { width:18px; height:18px; border-radius:4px; border:1.5px solid var(--color-border-strong); display:grid; place-items:center; flex:none; background:var(--color-bg-surface); }
+.opt:hover .box { border-color:var(--color-border-brand); }
+.opt[aria-checked="true"] .box { background:var(--color-bg-brand); border-color:transparent; }
+.opt .box svg { width:14px; height:14px; color:var(--color-text-on-brand); display:none; }
+.opt[aria-checked="true"] .box svg { display:block; }
+.opt .lbl { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.opt .cnt { font:400 13px/20px var(--font-mono); color:var(--color-text-tertiary); }
+
+/* Status badge */
+.badge { display:inline-flex; align-items:center; gap:var(--space-xs); padding:var(--space-2xs) var(--space-sm); border-radius:var(--radius-full); font:500 12px/16px var(--font-ui); }
+.badge svg { width:14px; height:14px; }
+.b-yes { background:var(--color-bg-success-subtle); color:var(--color-text-success); }
+.b-open { background:var(--color-bg-brand-subtle); color:var(--color-text-brand); }
+.b-pending { background:var(--color-bg-warning-subtle); color:var(--color-text-warning); }
+.b-no { background:var(--color-bg-danger-subtle); color:var(--color-text-danger); }
+.b-na { background:var(--color-bg-muted); color:var(--color-text-secondary); }
+
+/* Panel / disclosure / notes */
+.panel { padding:var(--space-xl) var(--space-xl); border-radius:var(--radius-lg); background:var(--color-bg-surface); border:1px solid var(--color-border-default); }
+.disclosure { border-radius:var(--radius-md); background:var(--color-bg-subtle); border:1px solid var(--color-border-subtle); }
+.disclosure > button { display:flex; align-items:center; gap:var(--space-md); width:100%; padding:var(--space-md) var(--space-lg); border:0; background:none; text-align:left; cursor:pointer; border-radius:var(--radius-md); }
+.disclosure > button:hover { background:var(--color-bg-hover); }
+.disclosure .chev { width:16px; height:16px; color:var(--color-icon-secondary); transition:transform .15s; flex:none; }
+.disclosure[data-open="true"] .chev { transform:rotate(90deg); }
+.disclosure .tx { flex:1; }
+.disclosure .act { color:var(--color-text-link); font:500 12px/16px var(--font-ui); }
+.disclosure .content { padding:0 var(--space-lg) var(--space-lg); display:none; }
+.disclosure[data-open="true"] .content { display:block; }
+.note { display:flex; align-items:center; gap:var(--space-md); padding:var(--space-md) var(--space-lg); border-radius:var(--radius-md); }
+.note svg { width:20px; height:20px; flex:none; }
+.note .tx { flex:1; }
+.note-success { background:var(--color-bg-success-subtle); } .note-success svg { color:var(--color-text-success); }
+.note-warning { background:var(--color-bg-warning-subtle); } .note-warning svg { color:var(--color-text-warning); }
+.note-info { background:var(--color-bg-brand-subtle); } .note-info svg { color:var(--color-text-brand); }
+.note-error { background:var(--color-bg-danger-subtle); border:1px solid var(--color-border-danger); } .note-error svg { color:var(--color-text-danger); }
+
+/* Dropzone */
+.drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-sm); min-height:220px; padding:var(--space-2xl); border-radius:var(--radius-lg); border:1.5px dashed var(--color-border-strong); background:var(--color-bg-subtle); text-align:center; cursor:pointer; transition:background .12s,border-color .12s; }
+.drop:hover { border-color:var(--color-border-brand); }
+.drop.over { border:2px dashed var(--color-border-brand); background:var(--color-bg-brand-subtle); }
+.drop.ok { border:1.5px solid var(--color-border-success); background:var(--color-bg-success-subtle); }
+.drop.err { border:1.5px solid var(--color-border-danger); background:var(--color-bg-danger-subtle); }
+.drop .ic { width:48px; height:48px; border-radius:50%; background:var(--color-bg-surface); box-shadow:var(--elevation-sm); display:grid; place-items:center; }
+.drop .ic svg { width:24px; height:24px; color:var(--color-text-brand); }
+.drop.ok .ic svg { color:var(--color-text-success); } .drop.err .ic svg { color:var(--color-text-danger); }
+.spin { animation:spin 1s linear infinite; } @keyframes spin { to { transform:rotate(360deg); } }
+
+/* Summary card */
+.summary-card { padding:var(--space-3xl); border-radius:var(--radius-xl); background:var(--color-bg-surface); border:1px solid var(--color-border-default); box-shadow:var(--elevation-md); display:flex; flex-direction:column; gap:var(--space-2xl); }
+.nums { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-lg); }
+.num { padding:var(--space-md) var(--space-lg); border-radius:var(--radius-md); background:var(--color-bg-subtle); }
+.num .t-stat { color:var(--color-text-brand); display:block; }
+.num.dim .t-stat { color:var(--color-text-tertiary); }
+table.data { width:100%; border-collapse:collapse; }
+table.data th { font:700 11px/16px var(--font-ui); letter-spacing:.8px; text-transform:uppercase; color:var(--color-text-tertiary); text-align:left; padding:var(--space-sm) var(--space-md); background:var(--color-bg-surface); position:sticky; top:0; }
+table.data td { padding:var(--space-sm) var(--space-md); border-top:1px solid var(--color-border-subtle); }
+table.data .r { text-align:right; font-family:var(--font-mono); }
+.list-scroll { max-height:340px; overflow:auto; }
+
+/* Segmented */
+.seg { display:inline-flex; gap:2px; padding:2px; border-radius:var(--radius-md); background:var(--color-bg-muted); }
+.seg button { border:0; background:none; padding:var(--space-xs) var(--space-md); border-radius:var(--radius-sm); font:500 14px/20px var(--font-ui); color:var(--color-text-secondary); cursor:pointer; min-width:110px; }
+.seg button[aria-pressed="true"] { background:var(--color-bg-surface); color:var(--color-text-brand); box-shadow:var(--elevation-sm); }
+
+/* Toast */
+.toast { position:absolute; top:var(--space-2xl); right:var(--space-3xl); max-width:420px; display:flex; gap:var(--space-md); padding:var(--space-md) var(--space-lg); border-radius:var(--radius-md); background:var(--color-bg-success-subtle); border:1px solid var(--color-border-success); box-shadow:var(--elevation-lg); transform:translateY(-12px); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:5; }
+.toast.show { opacity:1; transform:none; pointer-events:auto; }
+.toast svg { width:20px; height:20px; color:var(--color-text-success); flex:none; margin-top:2px; }
+.toast b { color:var(--color-text-success); display:block; font:600 14px/20px var(--font-ui); }
+.row { display:flex; align-items:center; gap:var(--space-md); }
+.inline-field { display:flex; align-items:center; gap:var(--space-sm); }
+.inline-field input { width:72px; height:36px; padding:0 var(--space-sm); border:1px solid var(--color-border-default); border-radius:var(--radius-md); background:var(--color-bg-surface); }
+.inline-field input:focus { border-color:var(--color-border-focus); box-shadow:var(--focus-ring); outline:none; }
+.wide-input { flex:1; height:36px; padding:0 var(--space-md); border:1px solid var(--color-border-default); border-radius:var(--radius-md); background:var(--color-bg-surface); }
+.wide-input:focus { border-color:var(--color-border-focus); box-shadow:var(--focus-ring); outline:none; }
+
+/* Responsive */
+@media (max-width: 860px) {
+  .body { grid-template-columns:1fr; }
+  .nav { display:none; }
+  .scroll { padding:var(--space-2xl) var(--space-lg); }
+  .bar { padding:var(--space-md) var(--space-lg); flex-wrap:wrap; }
+  .bar .summary { order:-1; flex-basis:100%; text-align:left; }
+  .grid2, .nums { grid-template-columns:1fr; }
+  .header { padding:0 var(--space-lg); } .header .appname, .header .divider { display:none; }
+  .t-display { font-size:26px; line-height:34px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <img src="assets/HRA-logo-white.png" alt="HRA — The Power of Collective">
+    <span class="divider" aria-hidden="true"></span>
+    <span class="t-heading-md appname">Geo Targeting Tool</span>
+    <span class="spacer"></span>
+    <div class="file-pill" id="filePill" aria-live="polite"></div>
+  </header>
+  <div class="body">
+    <nav class="nav" aria-label="Workflow steps">
+      <span class="t-overline" id="stepOf">Step 1 of 5</span>
+      <div class="progress" aria-hidden="true"><i id="progressFill" style="width:20%"></i></div>
+      <div id="steps"></div>
+      <div class="grow"></div>
+      <div class="privacy t-body-sm muted"><b style="color:var(--color-text-primary)">Your data stays on this computer</b>The Excel is read in your browser. Nothing is uploaded.</div>
+    </nav>
+    <main class="main">
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="scroll" id="scroll"><div class="column" id="view"></div></div>
+      <div class="bar" id="bar"></div>
+    </main>
+  </div>
+</div>
+<input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden>
+
+<script>
+/* ============================================================
+   Icons (Lucide paths, 24px grid, 2px stroke) — same as Figma
+   ============================================================ */
+const IC = {
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>', x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', check:'<path d="M20 6 9 17l-5-5"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8 12 3 7 8"/><path d="M12 3v12"/>', download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  cc:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>', xc:'<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>', chevR:'<path d="m9 18 6-6-6-6"/>', chevL:'<path d="m15 18-6-6 6-6"/>',
+  ban:'<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>', file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
+  loader:'<path d="M21 12a9 9 0 1 1-6.22-8.56"/>', reset:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', copy:'<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/>', plus:'<path d="M5 12h14"/><path d="M12 5v14"/>'
+};
+const icon = (n, cls='') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n.toLocaleString('en-US');
+const plural = (n, one, many) => `${fmt(n)} ${n === 1 ? one : (many || one + 's')}`;
+
+/* ============================================================
+   Data model
+   ============================================================ */
+const STATUS = ['Yes','Open Ticket','Pending','No','Not Applicable'];
+const STATUS_META = {
+  'Yes':{cls:'b-yes',ic:'cc',label:'Yes'}, 'Open Ticket':{cls:'b-open',ic:'info',label:'Open Ticket'}, 'Pending':{cls:'b-pending',ic:'loader',label:'Pending'},
+  'No':{cls:'b-no',ic:'xc',label:'No'}, 'Not Applicable':{cls:'b-na',ic:'ban',label:'N/A'}
+};
+const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'District of Columbia'};
+const REQUIRED = ['Store','State','Zip Code'];
+const titleCase = s => s.toLowerCase().replace(/\b([a-z])/g, m => m.toUpperCase()).replace(/\bMc([a-z])/g,(m,c)=>'Mc'+c.toUpperCase());
+
+const S = {
+  step: 1, maxStep: 1,
+  fileName: '', stores: [], vendors: [], issues: [],
+  vendorSel: [], multi: false, match: 'any', statuses: new Set(['Yes','Open Ticket']), vendorQuery: '', statusOpen: false,
+  states: new Set(), narrow: 'all', counties: new Set(), countyQuery: '',
+  restored: new Set(), skipOpen: false, breakdownOpen: false,
+  format: 'zip', radius: 5, campaign: '', loadState: 'idle', loadError: ''
+};
+
+function parseWorkbook(buf, name) {
+  const wb = XLSX.read(buf, { type: 'array' });
+  // choose the sheet that has the required columns (prefers "Store Classification")
+  const names = [...wb.SheetNames].sort((a, b) => (/store classification/i.test(b) ? 1 : 0) - (/store classification/i.test(a) ? 1 : 0));
+  let rows = null, headers = [];
+  for (const n of names) {
+    const r = XLSX.utils.sheet_to_json(wb.Sheets[n], { defval: '', raw: false });
+    if (!r.length) continue;
+    const h = Object.keys(r[0]);
+    if (REQUIRED.every(c => h.some(k => k.trim().toLowerCase() === c.toLowerCase()))) { rows = r; headers = h; break; }
+  }
+  if (!rows) {
+    throw new Error(`We couldn't find a sheet with the columns ${REQUIRED.join(', ')}. Upload the Store Classification Report export.`);
+  }
+  const col = n => headers.find(k => k.trim().toLowerCase() === n.toLowerCase());
+  const C = { id: col('HRA Member ID'), store: col('Store'), street: col('Street'), city: col('City'), state: col('State'), zip: col('Zip Code'), county: col('County') };
+  // Vendor columns = every value is a vendor status (or blank)
+  const allowed = new Set(['', ...STATUS]);
+  const vendorCols = headers.filter(h => !Object.values(C).includes(h)).filter(h => {
+    let seen = 0;
+    for (const r of rows) { const v = String(r[h]).trim(); if (!allowed.has(v)) return false; if (v) seen++; }
+    return seen > 0;
+  });
+  if (!vendorCols.length) throw new Error('No vendor columns found. Vendor columns should contain Yes / No / Pending / Open Ticket / Not Applicable.');
+  const issues = { noCounty: 0, noZip: 0 };
+  // Same place typed with different casing ("DeKalb" / "DEKALB" / "Dekalb") → keep the most common spelling
+  const spelling = (key) => {
+    const tally = new Map();
+    for (const r of rows) {
+      const raw = String(r[key] || '').trim().replace(/\s+county$/i, '');
+      if (!raw) continue;
+      const k = raw.toLowerCase(); const m = tally.get(k) || new Map();
+      m.set(raw, (m.get(raw) || 0) + (raw === raw.toUpperCase() || raw === raw.toLowerCase() ? 0.5 : 1)); // prefer mixed case
+      tally.set(k, m);
+    }
+    const best = new Map();
+    for (const [k, m] of tally) { const [w] = [...m.entries()].sort((a, b) => b[1] - a[1])[0]; best.set(k, w === w.toUpperCase() || w === w.toLowerCase() ? titleCase(w) : w); }
+    return raw => { const r = String(raw || '').trim().replace(/\s+county$/i, ''); return r ? best.get(r.toLowerCase()) : ''; };
+  };
+  const countyName = C.county ? spelling(C.county) : () => '';
+  const cityName = C.city ? spelling(C.city) : () => '';
+  const stores = rows.map(r => {
+    const zip = (String(r[C.zip]).match(/\d{5}/) || [''])[0];
+    const county = countyName(r[C.county]);
+    if (!county) issues.noCounty++;
+    if (!zip) issues.noZip++;
+    const v = {}; for (const h of vendorCols) v[h.trim()] = String(r[h]).trim();
+    return {
+      id: String(C.id ? r[C.id] : '').trim(), store: String(r[C.store]).trim(), street: C.street ? String(r[C.street]).trim() : '',
+      city: cityName(r[C.city]), state: String(r[C.state]).trim().toUpperCase(), zip,
+      county, v
+    };
+  }).filter(s => s.state);
+  return { stores, vendors: vendorCols.map(h => h.trim()), issues, fileName: name };
+}
+
+/* Derived data — recomputed from state on every render */
+function carries(s) {
+  if (!S.vendorSel.length) return false;
+  const hit = v => S.statuses.has(s.v[v]);
+  return S.match === 'all' ? S.vendorSel.every(hit) : S.vendorSel.some(hit);
+}
+const vendorCount = v => S.stores.reduce((n, s) => n + (S.statuses.has(s.v[v]) ? 1 : 0), 0);
+const countyKey = s => `${s.state}|${s.county}`;
+function inArea(s) {
+  if (!S.states.has(s.state)) return false;
+  if (S.narrow === 'counties') return S.counties.has(countyKey(s));
+  return true;
+}
+function compute() {
+  const area = S.stores.filter(inArea);
+  const target = area.filter(carries);
+  const targetZips = new Map(); for (const s of target) if (s.zip) targetZips.set(s.zip, (targetZips.get(s.zip) || 0) + 1);
+  const areaZips = new Map(); for (const s of area) if (s.zip) { const z = areaZips.get(s.zip) || { n: 0, city: s.city, county: s.county, state: s.state }; z.n++; areaZips.set(s.zip, z); }
+  const skipped = [...areaZips.entries()].filter(([z]) => !targetZips.has(z) && !S.restored.has(z)).map(([zip, d]) => ({ zip, ...d })).sort((a, b) => b.n - a.n || a.zip.localeCompare(b.zip));
+  const restoredZips = [...S.restored].filter(z => areaZips.has(z) && !targetZips.has(z));
+  const zips = [...targetZips.keys(), ...restoredZips].sort();
+  const cities = new Map(); const counties = new Map();
+  for (const s of target) { if (s.city) cities.set(`${s.city}|${s.state}`, (cities.get(`${s.city}|${s.state}`) || 0) + 1); if (s.county) counties.set(`${s.county}|${s.state}`, (counties.get(`${s.county}|${s.state}`) || 0) + 1); }
+  const areaByCounty = new Map(); for (const s of area) if (s.county) areaByCounty.set(`${s.county}|${s.state}`, (areaByCounty.get(`${s.county}|${s.state}`) || 0) + 1);
+  return { area, target, zips, targetZips, skipped, cities, counties, areaByCounty };
+}
+const vendorLabel = () => S.vendorSel.length === 1 ? S.vendorSel[0] : S.vendorSel.length === 2 ? S.vendorSel.join(S.match === 'all' ? ' + ' : ' or ') : `${S.vendorSel.length} vendors`;
+const stateLabel = () => { const a = [...S.states].map(s => STATE_NAMES[s] || s); return a.length === 1 ? a[0] : a.length === 2 ? a.join(' & ') : `${a.length} states`; };
+
+/* ============================================================
+   Rendering
+   ============================================================ */
+const STEPS = [['Upload file','Store Classification Excel'],['Choose vendor','Who is the campaign for?'],['Choose area','Where should ads run?'],['Review','Check what you\'ll target'],['Export','Send to Google Ads']];
+const $ = id => document.getElementById(id);
+
+function renderNav() {
+  $('stepOf').textContent = `Step ${S.step} of 5`;
+  $('progressFill').style.width = `${S.step * 20}%`;
+  $('steps').innerHTML = STEPS.map(([t, c], i) => {
+    const n = i + 1, cls = n === S.step ? 'current' : n < S.step || n <= S.maxStep && n !== S.step && canReach(n) ? 'done' : '';
+    const dot = cls === 'done' ? icon('check') : n;
+    return `<button class="step ${cls}" ${cls === 'done' ? `data-go="${n}"` : 'tabindex="-1" aria-disabled="true"'} ${n === S.step ? 'aria-current="step"' : ''}>
+      <span class="dot">${dot}</span><span><span class="title">${t}</span><span class="cap">${c}</span></span></button>`;
+  }).join('');
+  const pill = $('filePill');
+  if (S.stores.length) { pill.classList.add('show'); pill.innerHTML = `${icon('file')}<span>${esc(S.fileName)}</span><span class="meta">· ${fmt(S.stores.length)} stores</span>`; pill.querySelector('svg').style.cssText = 'width:16px;height:16px;color:var(--prim-gold-500);flex:none'; }
+  else pill.classList.remove('show');
+}
+function canReach(n) {
+  if (n <= 1) return true;
+  if (n === 2) return S.stores.length > 0;
+  if (n === 3) return canReach(2) && S.vendorSel.length > 0;
+  if (n >= 4) return canReach(3) && S.states.size > 0 && (S.narrow === 'all' || S.counties.size > 0);
+}
+function bar(html) { $('bar').innerHTML = html; }
+const btn = (cls, label, attrs = '', ic = '') => `<button class="btn btn-${cls}" ${attrs}>${ic ? icon(ic) : ''}${label}</button>`;
+const backBtn = () => btn('ghost', 'Back', 'data-act="back"', 'chevL');
+
+function tile({ type, checked, title, cap, tag, attrs = '', disabled }) {
+  return `<button class="tile" role="${type === 'radio' ? 'radio' : 'checkbox'}" aria-checked="${!!checked}" ${disabled ? 'aria-disabled="true"' : ''} ${attrs}>
+    <span class="ctl ${type === 'radio' ? 'radio' : 'check'}">${type === 'radio' ? '' : icon('check')}</span>
+    <span class="tx"><span class="ttl">${esc(title)}${tag ? `<span class="tag">${esc(tag)}</span>` : ''}</span><span class="cap">${cap}</span></span></button>`;
+}
+const opt = ({ checked, label, count, attrs }) => `<button class="opt" role="checkbox" aria-checked="${!!checked}" ${attrs}><span class="box">${icon('check')}</span><span class="lbl">${esc(label)}</span><span class="cnt">${count}</span></button>`;
+const badge = st => { const m = STATUS_META[st]; return `<span class="badge ${m.cls}">${icon(m.ic)}${m.label}</span>`; };
+const question = (q, help) => `<div class="question"><h1 class="t-display" tabindex="-1" id="q">${q}</h1><p class="t-body-lg">${help}</p></div>`;
+
+function render(focus = false) {
+  renderNav();
+  const v = $('view');
+  ({ 1: viewUpload, 2: viewVendor, 3: viewArea, 4: viewReview, 5: viewExport })[S.step](v);
+  if (focus) { $('scroll').scrollTop = 0; const q = $('q'); q && q.focus({ preventScroll: true }); }
+}
+
+/* ---------- Step 1: Upload ---------- */
+function viewUpload(v) {
+  const st = S.loadState;
+  let dz;
+  if (st === 'loading') dz = `<div class="drop" aria-busy="true"><div class="ic">${icon('loader', 'spin')}</div><div class="t-heading-md">Reading ${esc(S.fileName)}…</div><div class="muted">Checking sheets and columns</div></div>`;
+  else if (st === 'ok') {
+    const states = new Set(S.stores.map(s => s.state)).size;
+    dz = `<div class="drop ok" role="button" tabindex="0" data-act="pick"><div class="ic">${icon('cc')}</div><div class="t-heading-md">${esc(S.fileName)} is ready</div><div style="color:var(--color-text-success)">${fmt(S.stores.length)} stores · ${S.vendors.length} vendors · ${states} states found</div></div>`;
+  } else if (st === 'err') dz = `<div class="drop err" role="button" tabindex="0" data-act="pick"><div class="ic">${icon('xc')}</div><div class="t-heading-md">That file didn't work</div><div style="color:var(--color-text-danger)">${esc(S.loadError)}</div><div class="faint t-body-sm">Click to choose another file</div></div>`;
+  else dz = `<div class="drop" role="button" tabindex="0" data-act="pick" id="drop"><div class="ic">${icon('upload')}</div><div class="t-heading-md">Drop the Store Classification Excel here</div><div class="muted">or click to browse · .xlsx</div></div>`;
+  const notes = [];
+  if (st === 'ok') {
+    if (S.issues.noCounty) notes.push(`<div class="note note-warning">${icon('alert')}<div class="tx">${plural(S.issues.noCounty, 'store has', 'stores have')} no county. They'll still be included by ZIP code.</div></div>`);
+    if (S.issues.noZip) notes.push(`<div class="note note-warning">${icon('alert')}<div class="tx">${plural(S.issues.noZip, 'store has', 'stores have')} no valid ZIP code and will be left out of ZIP exports.</div></div>`);
+  }
+  v.innerHTML = question('Start with your store list', 'Upload the Store Classification Report from the CRM. It stays on this computer.') + dz + notes.join('');
+  const drop = v.querySelector('.drop');
+  if (drop && st !== 'loading') {
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) loadFile(f); });
+  }
+  bar(st === 'ok'
+    ? `${btn('ghost', 'Use a different file', 'data-act="pick"', 'reset')}<span class="summary">${fmt(S.stores.length)} stores ready</span>${btn('primary', 'Continue', 'data-act="next"', 'chevR')}`
+    : `<span class="summary">${st === 'err' ? 'Fix the file to continue' : 'Upload a file to continue'}</span>${btn('primary', 'Continue', 'disabled', 'chevR')}`);
+}
+
+/* ---------- Step 2: Vendor ---------- */
+function viewVendor(v) {
+  const q = S.vendorQuery.trim().toLowerCase();
+  const counts = S.vendors.map(n => [n, vendorCount(n)]).sort((a, b) => b[1] - a[1]);
+  const list = q ? counts.filter(([n]) => n.toLowerCase().includes(q)) : counts.slice(0, S.showAllVendors ? counts.length : 8);
+  const type = S.multi ? 'checkbox' : 'radio';
+  const tiles = list.map(([n, c]) => tile({ type, checked: S.vendorSel.includes(n), title: n, cap: c ? `${fmt(c)} stores carry it` : 'No stores carry it', disabled: !c, attrs: `data-vendor="${esc(n)}"` })).join('');
+  const statusSummary = [...S.statuses].map(s => STATUS_META[s].label).join(' or ') || 'nothing (pick at least one)';
+  v.innerHTML = question('Which vendor is this campaign for?', 'Pick the brand you\'re running ads for. We\'ll only target areas where stores carry it.') + `
+    <label class="search ${S.vendorQuery ? 'has-value' : ''}">${icon('search')}<span class="sr-only">Search vendors</span><input id="vq" placeholder="Search all ${S.vendors.length} vendors…" value="${esc(S.vendorQuery)}" autocomplete="off"><button class="clear" data-act="clearVq" aria-label="Clear search">${icon('x')}</button></label>
+    <div><div class="t-overline" style="margin-bottom:var(--space-md)">${q ? `${list.length} match${list.length === 1 ? '' : 'es'}` : 'Most carried'}</div>
+      ${list.length ? `<div class="grid2" role="${type === 'radio' ? 'radiogroup' : 'group'}" aria-label="Vendors">${tiles}</div>` : `<div class="note note-info">${icon('info')}<div class="tx">No vendor matches "${esc(S.vendorQuery)}". Check the spelling.</div></div>`}
+      ${!q && counts.length > 8 ? `<div style="margin-top:var(--space-md)"><button class="link" data-act="allVendors">${S.showAllVendors ? 'Show fewer' : `Show all ${counts.length} vendors`}</button></div>` : ''}</div>
+    ${S.multi ? `<div class="panel stack"><div class="t-label-md">Your ads should reach stores that carry</div><div class="seg" role="group" aria-label="Match mode"><button aria-pressed="${S.match === 'any'}" data-match="any">Any of them</button><button aria-pressed="${S.match === 'all'}" data-match="all">All of them</button></div><div class="t-body-sm faint">${S.match === 'any' ? 'Wider reach. Good for co-op campaigns.' : 'Narrower. Only stores stocking every selected vendor.'}</div><div><button class="link" data-act="single">Back to one vendor</button></div></div>`
+      : `<div><button class="link" data-act="multi" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">${icon('plus').replace('<svg', '<svg style="width:16px;height:16px"')}Add another vendor (co-op campaign)</button></div>`}
+    <div class="disclosure" data-open="${S.statusOpen}"><button data-act="toggleStatus" aria-expanded="${S.statusOpen}">${icon('chevR', 'chev')}<span class="tx"><span class="t-label-md" style="display:block">Advanced: what counts as "carries"</span><span class="t-body-sm muted">Stores marked ${statusSummary} in the Excel</span></span><span class="act">${S.statusOpen ? 'Hide' : 'Change'}</span></button>
+      <div class="content">${STATUS.map(st => `<button class="opt" role="checkbox" aria-checked="${S.statuses.has(st)}" data-status="${st}"><span class="box">${icon('check')}</span><span class="lbl">${badge(st)}</span><span class="cnt">${S.vendorSel.length === 1 ? fmt(S.stores.filter(s => s.v[S.vendorSel[0]] === st).length) : ''}</span></button>`).join('')}</div></div>`;
+  const inp = $('vq'); inp.addEventListener('input', e => { S.vendorQuery = e.target.value; const pos = e.target.selectionStart; render(); const n = $('vq'); n.focus(); n.setSelectionRange(pos, pos); });
+  const n = S.vendorSel.length ? S.stores.filter(carries).length : 0;
+  bar(`${backBtn()}<span class="summary">${S.vendorSel.length ? `${esc(vendorLabel())} selected · ${fmt(n)} stores` : 'Pick a vendor to continue'}</span>${btn('primary', 'Continue', S.vendorSel.length && S.statuses.size ? 'data-act="next"' : 'disabled', 'chevR')}`);
+}
+
+/* ---------- Step 3: Area ---------- */
+function viewArea(v) {
+  const carrying = S.stores.filter(carries);
+  const byState = new Map(); for (const s of S.stores) { const e = byState.get(s.state) || { all: 0, hit: 0 }; e.all++; byState.set(s.state, e); }
+  for (const s of carrying) byState.get(s.state).hit++;
+  const states = [...byState.entries()].sort((a, b) => b[1].hit - a[1].hit);
+  const vl = esc(vendorLabel());
+  let html = question('Where should the ads run?', `Choose one or more states. Numbers show how many stores there carry ${vl}.`) +
+    `<div class="grid2" role="group" aria-label="States">${states.map(([st, e]) => tile({ type: 'checkbox', checked: S.states.has(st), title: STATE_NAMES[st] || st, cap: `${fmt(e.hit)} of ${plural(e.all, 'store')}`, disabled: !e.hit && !S.states.has(st), attrs: `data-state="${st}"` })).join('')}</div>
+     <div class="row"><button class="link" data-act="allStates">Select all ${states.filter(([, e]) => e.hit).length} states</button><button class="link" data-act="clearStates">Clear</button></div>`;
+  if (S.states.size) {
+    const sl = esc(stateLabel());
+    const inSel = carrying.filter(s => S.states.has(s.state));
+    const zipN = new Set(inSel.map(s => s.zip).filter(Boolean)).size;
+    html += `<div class="stack" style="gap:var(--space-md);margin-top:var(--space-lg)"><h2 class="t-heading-lg" style="color:var(--color-text-brand)">Run ads across all of ${sl}?</h2>
+      <div class="stack" role="radiogroup" aria-label="Narrow down">
+        ${tile({ type: 'radio', checked: S.narrow === 'all', title: `Yes, all of ${stateLabel()}`, cap: `${fmt(zipN)} ZIP codes · ${fmt(inSel.length)} stores`, tag: 'Recommended', attrs: 'data-narrow="all"' })}
+        ${tile({ type: 'radio', checked: S.narrow === 'counties', title: 'No, only some counties', cap: 'Pick counties below. We\'ll include their ZIP codes.', attrs: 'data-narrow="counties"' })}
+      </div></div>`;
+    if (S.narrow === 'counties') {
+      const multiState = S.states.size > 1;
+      const cmap = new Map(); for (const s of inSel) if (s.county) { const k = countyKey(s); cmap.set(k, (cmap.get(k) || 0) + 1); }
+      const q = S.countyQuery.trim().toLowerCase();
+      const rows = [...cmap.entries()].sort((a, b) => b[1] - a[1]).filter(([k]) => !q || k.toLowerCase().includes(q));
+      html += `<div class="panel stack" style="gap:var(--space-sm)">
+        <label class="search ${S.countyQuery ? 'has-value' : ''}">${icon('search')}<span class="sr-only">Search counties</span><input id="cq" placeholder="Search ${fmt(cmap.size)} counties…" value="${esc(S.countyQuery)}" autocomplete="off"><button class="clear" data-act="clearCq" aria-label="Clear search">${icon('x')}</button></label>
+        <div class="row" style="justify-content:space-between"><span class="t-body-sm faint">${rows.length} ${rows.length === 1 ? 'county' : 'counties'} with ${vl} stores${S.counties.size ? ` · ${S.counties.size} selected` : ''}</span>${S.counties.size ? '<button class="link t-body-sm" data-act="clearCounties">Clear selection</button>' : ''}</div>
+        <div class="list-scroll"><div class="grid2" style="gap:0 var(--space-lg)">${rows.map(([k, n]) => { const [st, c] = k.split('|'); return opt({ checked: S.counties.has(k), label: multiState ? `${c}, ${st}` : c, count: `${fmt(n)} stores`, attrs: `data-county="${esc(k)}"` }); }).join('') || '<div class="faint" style="padding:8px">No counties match your search.</div>'}</div></div></div>`;
+    }
+  }
+  v.innerHTML = html;
+  const cq = $('cq'); if (cq) cq.addEventListener('input', e => { S.countyQuery = e.target.value; const pos = e.target.selectionStart; const st = $('scroll').scrollTop; render(); $('scroll').scrollTop = st; const n = $('cq'); n.focus(); n.setSelectionRange(pos, pos); });
+  const d = compute();
+  const ok = S.states.size && (S.narrow === 'all' || S.counties.size);
+  const sum = !S.states.size ? 'Pick at least one state' : S.narrow === 'counties' && !S.counties.size ? 'Pick at least one county' : `${S.narrow === 'counties' ? plural(S.counties.size, 'county', 'counties') : plural(S.states.size, 'state')} · ${fmt(d.target.length)} stores`;
+  bar(`${backBtn()}<span class="summary">${sum}</span>${btn('primary', 'Continue', ok ? 'data-act="next"' : 'disabled', 'chevR')}`);
+}
+
+/* ---------- Step 4: Review ---------- */
+function viewReview(v) {
+  const d = compute(); const vl = esc(vendorLabel()); const where = S.narrow === 'counties' ? `${plural(S.counties.size, 'county', 'counties')} in ${esc(stateLabel())}` : esc(stateLabel());
+  const top = [...d.counties.entries()].sort((a, b) => b[1] - a[1]);
+  const topLine = top.slice(0, 4).map(([k, n]) => `${k.split('|')[0]} ${fmt(n)}`).join(' · ');
+  v.innerHTML = question(`Here's where your ${vl} ads will run`, 'Check the numbers. If something looks off, go back and change it.') + `
+    <div class="summary-card">
+      <p class="t-heading-lg" style="margin:0">Your ads will target ${plural(d.zips.length, 'ZIP code')} in ${where}, where ${plural(d.target.length, 'store sells', 'stores sell')} ${vl}.</p>
+      <div class="nums"><div class="num"><span class="t-stat">${fmt(d.target.length)}</span><span class="muted">stores carry ${vl}</span></div><div class="num"><span class="t-stat">${fmt(d.zips.length)}</span><span class="muted">ZIP codes to target</span></div><div class="num dim"><span class="t-stat">${fmt(d.skipped.length)}</span><span class="muted">ZIPs skipped</span></div></div>
+      ${d.skipped.length ? `<div class="note note-success">${icon('cc')}<div class="tx">${plural(d.skipped.length, 'ZIP was', 'ZIPs were')} skipped automatically. No store there carries ${vl}, so ads there would waste budget.</div><button class="link" data-act="toggleSkip" aria-expanded="${S.skipOpen}">${S.skipOpen ? 'Hide list' : 'See list'}</button></div>`
+        : `<div class="note note-info">${icon('info')}<div class="tx">Every ZIP in this area has at least one store that carries ${vl}. Nothing to skip.</div></div>`}
+      ${S.skipOpen && d.skipped.length + S.restored.size ? `<div class="list-scroll"><table class="data"><thead><tr><th>ZIP</th><th>Area</th><th class="r">Stores</th><th></th></tr></thead><tbody>
+        ${d.skipped.map(z => `<tr><td class="t-data">${z.zip}</td><td>${esc(z.city)}${z.county ? `, ${esc(z.county)}` : ''}</td><td class="r">${z.n} · 0 carry</td><td style="text-align:right"><button class="btn btn-secondary" style="height:32px" data-restore="${z.zip}">Include anyway</button></td></tr>`).join('')}
+        ${[...S.restored].map(z => `<tr><td class="t-data">${z}</td><td class="faint">Included by you</td><td class="r">0 carry</td><td style="text-align:right"><button class="btn btn-ghost" style="height:32px" data-unrestore="${z}">Skip again</button></td></tr>`).join('')}
+      </tbody></table></div>` : ''}
+    </div>
+    <div class="disclosure" data-open="${S.breakdownOpen}"><button data-act="toggleBreakdown" aria-expanded="${S.breakdownOpen}">${icon('chevR', 'chev')}<span class="tx"><span class="t-label-md" style="display:block">See breakdown by county</span><span class="t-body-sm muted">${topLine ? `Top: ${esc(topLine)}` : 'No county data'}</span></span><span class="act">${S.breakdownOpen ? 'Hide' : 'Show'}</span></button>
+      <div class="content"><div class="list-scroll"><table class="data"><thead><tr><th>County</th><th class="r">Carrying</th><th class="r">All stores</th><th class="r">Share</th></tr></thead><tbody>
+        ${top.map(([k, n]) => { const [c, st] = k.split('|'); const all = d.areaByCounty.get(k) || n; return `<tr><td>${esc(c)}${S.states.size > 1 ? `, ${st}` : ''}</td><td class="r">${fmt(n)}</td><td class="r faint">${fmt(all)}</td><td class="r">${Math.round(n / all * 100)}%</td></tr>`; }).join('')}
+      </tbody></table></div></div></div>`;
+  bar(`${backBtn()}<span class="summary">Everything look right?</span>${btn('accent', 'Continue to export', d.zips.length ? 'data-act="next"' : 'disabled', 'download')}`);
+}
+
+/* ---------- Step 5: Export ---------- */
+const FORMATS = {
+  zip: { title: 'ZIP code list', btn: 'Download ZIP list (.csv)' },
+  geo: { title: 'City & county list', btn: 'Download city & county list (.csv)' },
+  radius: { title: 'Radius around each store', btn: 'Download radius file (.csv)' },
+  report: { title: 'Planning report (Excel)', btn: 'Download planning report (.xlsx)' }
+};
+function viewExport(v) {
+  const d = compute(); const vl = esc(vendorLabel());
+  if (!S.campaign) S.campaign = `${vendorLabel()} – ${stateLabel()}`;
+  const withAddr = d.target.filter(s => s.street).length;
+  const caps = {
+    zip: `${plural(d.zips.length, 'ZIP')}, one per line${d.skipped.length ? `, plus the ${plural(d.skipped.length, 'skipped ZIP')} as excluded locations` : ''}`,
+    geo: `${plural(d.cities.size, 'city', 'cities')} and ${plural(d.counties.size, 'county', 'counties')}, named the way Google Ads expects`,
+    radius: `A pin at each of the ${fmt(withAddr)} store addresses with a ${S.radius}-mile radius (Google Ads Editor file)`,
+    report: 'Counts by county and ZIP plus the store list, for budgeting'
+  };
+  const how = {
+    zip: 'In Google Ads: Campaign › Settings › Locations › Advanced search › Add locations in bulk. Choose United States, then paste. Add the excluded file under "Excluded locations".',
+    geo: 'In Google Ads: Campaign › Settings › Locations › Advanced search › Add locations in bulk, then paste the list.',
+    radius: 'In Google Ads Editor: Account › Import › From file, then pick this CSV. Check the radius targets before posting.',
+    report: 'Open in Excel to plan budgets per county or ZIP. It isn\'t uploaded to Google Ads.'
+  };
+  v.innerHTML = question('How do you want to add this to Google Ads?', 'Pick a format and download it. You can come back and export another one any time.') + `
+    <div class="stack" role="radiogroup" aria-label="Export format">${Object.entries(FORMATS).map(([k, f]) => tile({ type: 'radio', checked: S.format === k, title: f.title, cap: caps[k], tag: k === 'zip' ? 'Recommended' : '', attrs: `data-format="${k}"` })).join('')}</div>
+    ${S.format === 'radius' ? `<div class="panel stack"><div class="row" style="flex-wrap:wrap"><label class="inline-field"><span class="t-label-md">Radius</span><input id="radius" type="number" min="1" max="50" value="${S.radius}"><span class="muted">miles</span></label><label class="inline-field" style="flex:1;min-width:260px"><span class="t-label-md">Campaign</span><input id="campaign" class="wide-input" value="${esc(S.campaign)}"></label></div><div class="t-body-sm faint">The campaign name must match the campaign in Google Ads Editor exactly.</div></div>` : ''}
+    <div class="row">${btn('accent btn-block', FORMATS[S.format].btn, 'data-act="download"', 'download')}${S.format === 'zip' || S.format === 'geo' ? btn('secondary', 'Copy to clipboard', 'data-act="copy"', 'copy') : ''}</div>
+    <div class="note note-info">${icon('info')}<div class="tx">${how[S.format]}</div></div>`;
+  const r = $('radius'); if (r) r.addEventListener('change', e => { S.radius = Math.max(1, Math.min(50, parseInt(e.target.value, 10) || 5)); render(); });
+  const c = $('campaign'); if (c) c.addEventListener('input', e => { S.campaign = e.target.value; });
+  bar(`${backBtn()}<span class="summary">${vl} · ${esc(stateLabel())} · ${plural(d.zips.length, 'ZIP')}</span>${btn('secondary', 'Start a new campaign', 'data-act="restart"', 'plus')}`);
+}
+
+/* ============================================================
+   Exports
+   ============================================================ */
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+const baseName = () => `${slug(vendorLabel())}_${slug(stateLabel())}`;
+function downloadText(name, text, type = 'text/csv') {
+  const blob = new Blob(['﻿' + text], { type: `${type};charset=utf-8` });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+const csvCell = v => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+const csv = rows => rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+function geoLines(d) {
+  const st = s => STATE_NAMES[s] || s;
+  return [...[...d.cities.keys()].sort().map(k => { const [c, s] = k.split('|'); return `${c}, ${st(s)}, United States`; }),
+          ...[...d.counties.keys()].sort().map(k => { const [c, s] = k.split('|'); return `${c} County, ${st(s)}, United States`; })];
+}
+function doDownload() {
+  const d = compute(); const b = baseName();
+  if (S.format === 'zip') {
+    downloadText(`${b}_zip_targets.csv`, d.zips.join('\r\n'));
+    if (d.skipped.length) setTimeout(() => downloadText(`${b}_zip_exclusions.csv`, d.skipped.map(z => z.zip).join('\r\n')), 400);
+    toast(`${plural(d.zips.length, 'ZIP')} downloaded`, d.skipped.length ? `Plus ${plural(d.skipped.length, 'excluded ZIP')} in a second file.` : 'Paste them into Locations › Add locations in bulk.');
+  } else if (S.format === 'geo') {
+    const lines = geoLines(d); downloadText(`${b}_cities_counties.csv`, lines.join('\r\n'));
+    toast(`${plural(lines.length, 'location')} downloaded`, 'Paste them into Locations › Add locations in bulk.');
+  } else if (S.format === 'radius') {
+    const rows = [['Campaign', 'Address', 'Radius', 'Unit']];
+    for (const s of d.target) if (s.street) rows.push([S.campaign, `${s.street}, ${s.city}, ${s.state} ${s.zip}, United States`, S.radius, 'mi']);
+    downloadText(`${b}_radius_${S.radius}mi.csv`, csv(rows));
+    toast(`${plural(rows.length - 1, 'store pin')} downloaded`, `Each has a ${S.radius}-mile radius. Import it in Google Ads Editor.`);
+  } else {
+    const wb = XLSX.utils.book_new();
+    const summary = [['HRA Geo Targeting — planning report'], [], ['Vendor', vendorLabel()], ['Match', S.vendorSel.length > 1 ? (S.match === 'all' ? 'All selected vendors' : 'Any selected vendor') : '—'], ['Counts as carrying', [...S.statuses].join(', ')], ['Area', S.narrow === 'counties' ? `${S.counties.size} counties in ${stateLabel()}` : stateLabel()], [], ['Target stores', d.target.length], ['ZIP codes to target', d.zips.length], ['ZIPs skipped (no carrying store)', d.skipped.length], ['Cities', d.cities.size], ['Counties', d.counties.size], [], ['Source file', S.fileName], ['Created', new Date().toLocaleString()]];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), 'Summary');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['County', 'State', 'Carrying stores', 'All stores', 'Share'], ...[...d.counties.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => { const [c, s] = k.split('|'); const all = d.areaByCounty.get(k) || n; return [c, s, n, all, Math.round(n / all * 100) / 100]; })]), 'By county');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['ZIP', 'Carrying stores'], ...d.zips.map(z => [z, d.targetZips.get(z) || 0])]), 'By ZIP');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['ZIP', 'City', 'County', 'State', 'Stores (none carry)'], ...d.skipped.map(z => [z.zip, z.city, z.county, z.state, z.n])]), 'Skipped ZIPs');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['HRA Member ID', 'Store', 'Street', 'City', 'County', 'State', 'ZIP', ...S.vendorSel], ...d.target.map(s => [s.id, s.store, s.street, s.city, s.county, s.state, s.zip, ...S.vendorSel.map(v => s.v[v])])]), 'Stores');
+    XLSX.writeFile(wb, `${b}_planning_report.xlsx`);
+    toast('Planning report downloaded', '5 sheets: summary, counties, ZIPs, skipped ZIPs and stores.');
+  }
+}
+async function doCopy() {
+  const d = compute(); const text = S.format === 'zip' ? d.zips.join('\n') : geoLines(d).join('\n');
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); if (!ok) throw new Error('blocked'); };
+  try { try { await navigator.clipboard.writeText(text); } catch { fallback(); } toast(S.format === 'zip' ? `${plural(d.zips.length, 'ZIP')} copied` : `${plural(text.split('\n').length, 'location')} copied`, 'In Google Ads, go to Locations › Advanced search › Add locations in bulk, then paste.'); }
+  catch { toast('Couldn\'t copy', 'Your browser blocked the clipboard. Use Download instead.', true); }
+}
+let toastTimer;
+function toast(title, body, err) {
+  const t = $('toast'); t.style.background = err ? 'var(--color-bg-danger-subtle)' : ''; t.style.borderColor = err ? 'var(--color-border-danger)' : '';
+  t.innerHTML = `${icon(err ? 'xc' : 'cc')}<div><b style="${err ? 'color:var(--color-text-danger)' : ''}">${esc(title)}</b><span>${esc(body)}</span></div>`;
+  t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 5000);
+}
+
+/* ============================================================
+   Events
+   ============================================================ */
+async function loadFile(file) {
+  S.fileName = file.name; S.loadState = 'loading'; render();
+  try {
+    const buf = await file.arrayBuffer();
+    loadBuffer(buf, file.name);
+  } catch (e) { S.loadState = 'err'; S.loadError = e.message || 'The file could not be read.'; S.stores = []; render(); }
+}
+function loadBuffer(buf, name) {
+  try {
+    const r = parseWorkbook(buf, name);
+    Object.assign(S, { stores: r.stores, vendors: r.vendors, issues: r.issues, fileName: r.fileName, loadState: 'ok', loadError: '', vendorSel: [], states: new Set(), counties: new Set(), restored: new Set(), narrow: 'all', maxStep: 1 });
+  } catch (e) { S.loadState = 'err'; S.loadError = e.message || 'The file could not be read.'; S.stores = []; }
+  render();
+}
+function go(n) { if (n < 1 || n > 5 || !canReach(n)) return; S.step = n; S.maxStep = Math.max(S.maxStep, n); render(true); }
+function toggleSet(set, k) { set.has(k) ? set.delete(k) : set.add(k); }
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button,[data-act]'); if (!t || t.disabled || t.getAttribute('aria-disabled') === 'true') return;
+  const ds = t.dataset;
+  if (ds.go) return go(+ds.go);
+  if (ds.vendor) {
+    const n = ds.vendor;
+    if (S.multi) S.vendorSel = S.vendorSel.includes(n) ? S.vendorSel.filter(x => x !== n) : [...S.vendorSel, n];
+    else S.vendorSel = [n];
+    // keep the chosen area; only reset things that depend on the vendor
+    S.restored = new Set(); S.maxStep = Math.min(S.maxStep, S.vendorSel.length ? 3 : 2); S.campaign = '';
+    return render();
+  }
+  if (ds.match) { S.match = ds.match; return render(); }
+  if (ds.status) { toggleSet(S.statuses, ds.status); S.maxStep = Math.min(S.maxStep, 2); return render(); }
+  if (ds.state) { toggleSet(S.states, ds.state); for (const k of [...S.counties]) if (!S.states.has(k.split('|')[0])) S.counties.delete(k); S.restored = new Set(); S.campaign = ''; S.maxStep = 3; return render(); }
+  if (ds.narrow) { S.narrow = ds.narrow; S.maxStep = 3; return render(); }
+  if (ds.county) { toggleSet(S.counties, ds.county); S.maxStep = 3; return render(); }
+  if (ds.format) { S.format = ds.format; return render(); }
+  if (ds.restore) { S.restored.add(ds.restore); return render(); }
+  if (ds.unrestore) { S.restored.delete(ds.unrestore); return render(); }
+  switch (ds.act) {
+    case 'pick': return $('fileInput').click();
+    case 'next': return go(S.step + 1);
+    case 'back': return go(S.step - 1);
+    case 'clearVq': S.vendorQuery = ''; return render();
+    case 'clearCq': S.countyQuery = ''; return render();
+    case 'allVendors': S.showAllVendors = !S.showAllVendors; return render();
+    case 'multi': S.multi = true; return render();
+    case 'single': S.multi = false; S.vendorSel = S.vendorSel.slice(0, 1); return render();
+    case 'toggleStatus': S.statusOpen = !S.statusOpen; return render();
+    case 'allStates': { const hit = new Set(S.stores.filter(carries).map(s => s.state)); S.states = hit; S.maxStep = 3; return render(); }
+    case 'clearStates': S.states = new Set(); S.counties = new Set(); return render();
+    case 'clearCounties': S.counties = new Set(); return render();
+    case 'toggleSkip': S.skipOpen = !S.skipOpen; return render();
+    case 'toggleBreakdown': S.breakdownOpen = !S.breakdownOpen; return render();
+    case 'download': return doDownload();
+    case 'copy': return doCopy();
+    case 'restart': Object.assign(S, { vendorSel: [], multi: false, match: 'any', states: new Set(), narrow: 'all', counties: new Set(), restored: new Set(), format: 'zip', campaign: '', maxStep: 2 }); return go(2);
+  }
+});
+document.addEventListener('keydown', e => { const t = e.target.closest('[role="button"][data-act]'); if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); t.click(); } });
+$('fileInput').addEventListener('change', e => { const f = e.target.files[0]; if (f) loadFile(f); e.target.value = ''; });
+// Allow dropping a file anywhere on step 1
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => { e.preventDefault(); if (S.step === 1 && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+
+window.geoTool = { state: S, loadBuffer, compute, go };   // handy for testing in the console
+render();
+</script>
+</body>
+</html>
