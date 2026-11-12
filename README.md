@@ -5,7 +5,7 @@ Turns the HRA Store Classification Report (Excel) into two things:
 1. **Google Ads location lists**, so a vendor's ad budget only goes to areas where stores actually carry that vendor.
 2. **Mailchimp member lists**: emails of members whose stores are subscribed to a vendor, filtered by one or more states.
 
-Live: https://tathagatdevda.github.io/hra-geo-targeting-tool/
+Live: https://tathagatdevda.github.io/hra-campaign-toolkit/
 
 ## How it works
 
