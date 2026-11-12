@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HRA Geo Targeting Tool</title>
+<title>HRA Campaign Toolkit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400&family=Roboto+Slab:wght@600;700&display=swap" rel="stylesheet">
@@ -119,8 +119,9 @@ button,input { font:inherit; color:inherit; }
 
 /* Step nav */
 .nav { background:var(--color-bg-surface); border-right:1px solid var(--color-border-default); padding:var(--space-2xl) var(--space-lg); display:flex; flex-direction:column; gap:var(--space-xs); overflow:auto; }
-.progress { height:4px; border-radius:2px; background:var(--color-bg-muted); margin:var(--space-xs) 0 var(--space-md); overflow:hidden; }
-.progress > i { display:block; height:100%; background:var(--color-bg-accent); transition:width .3s ease; }
+.progress { display:flex; gap:4px; height:4px; margin:var(--space-xs) 0 var(--space-md); }
+.progress > i { flex:1; border-radius:2px; background:var(--color-bg-muted); transition:background .3s ease; }
+.progress > i.on { background:var(--color-bg-accent); }
 .step { display:flex; align-items:center; gap:var(--space-md); padding:var(--space-sm); border-radius:var(--radius-md); border:0; background:none; text-align:left; width:100%; cursor:default; }
 .step .dot { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; flex:none; font:500 14px/1 var(--font-ui); border:1.5px solid var(--color-border-strong); color:var(--color-text-tertiary); background:var(--color-bg-surface); }
 .step .title { font:500 14px/20px var(--font-ui); color:var(--color-text-tertiary); display:block; }
@@ -272,6 +273,63 @@ table.data .r { text-align:right; font-family:var(--font-mono); }
 .wide-input { flex:1; height:36px; padding:0 var(--space-md); border:1px solid var(--color-border-default); border-radius:var(--radius-md); background:var(--color-bg-surface); }
 .wide-input:focus { border-color:var(--color-border-focus); box-shadow:var(--focus-ring); outline:none; }
 
+/* Task cards */
+.task-ic { width:44px; height:44px; border-radius:var(--radius-md); display:grid; place-items:center; background:var(--color-bg-brand-subtle); color:var(--color-text-brand); flex:none; }
+.task-ic svg { width:22px; height:22px; }
+.tasks.has-pick .tile[aria-checked="false"]:not(:hover) { opacity:.6; }
+.tasks .tile { transition:background .12s, border-color .12s, box-shadow .12s, opacity .25s; }
+/* Template card */
+.tpl { display:flex; align-items:center; gap:var(--space-md); padding:var(--space-md) var(--space-lg); border-radius:var(--radius-md); background:var(--color-bg-surface); border:1px solid var(--color-border-default); }
+.tpl > svg { width:20px; height:20px; color:var(--color-text-accent); flex:none; }
+.tpl .tx { flex:1; }
+.tpl a.btn { text-decoration:none; }
+/* Loading shimmer */
+.shimmer { width:220px; height:6px; border-radius:3px; background:var(--color-bg-muted); overflow:hidden; position:relative; }
+.shimmer::after { content:''; position:absolute; inset:0; width:40%; border-radius:3px; background:var(--color-bg-brand); animation:shimmer 1.2s linear infinite; }
+@keyframes shimmer { from { transform:translateX(-100%); } to { transform:translateX(250%); } }
+/* Done card (email export) */
+.done-card { display:flex; gap:var(--space-md); align-items:flex-start; padding:var(--space-md) var(--space-lg); border-radius:var(--radius-md); background:var(--color-bg-success-subtle); border:1px solid var(--color-border-success); }
+.done-card > svg { width:20px; height:20px; color:var(--color-text-success); flex:none; margin-top:2px; }
+.done-card b { display:block; color:var(--color-text-success); font:600 14px/20px var(--font-ui); }
+.flyer { position:fixed; width:32px; height:32px; color:var(--color-text-brand); pointer-events:none; z-index:20; }
+.flyer svg { width:100%; height:100%; }
+
+/* ============ Motion (see motion spec in the build log) ============ */
+.btn:active:not(:disabled) { transform:scale(.97); }
+@keyframes pop { 0% { transform:scale(1); } 30% { transform:scale(.98); } 70% { transform:scale(1.03); } 100% { transform:scale(1); } }
+@keyframes checkPop { 0% { transform:scale(.6); } 60% { transform:scale(1.15); } 100% { transform:scale(1); } }
+@keyframes dropPop { 0% { transform:scale(.96); opacity:.6; } 45% { transform:scale(1.02); opacity:1; } 100% { transform:scale(1); } }
+@keyframes nudge { 0%,55% { transform:scale(1); } 75% { transform:scale(1.08); } 100% { transform:scale(1); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes shake { 0%,100% { transform:translateX(0); } 13% { transform:translateX(-10px); } 31% { transform:translateX(10px); } 49% { transform:translateX(-8px); } 67% { transform:translateX(6px); } 85% { transform:translateX(-3px); } }
+@keyframes pulse { 0%,100% { transform:scale(1); box-shadow:none; } 50% { transform:scale(1.03); box-shadow:var(--elevation-lg); } }
+@keyframes riseIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@keyframes springUp { 0% { opacity:0; transform:translateY(40px) scale(.97); } 60% { opacity:1; transform:translateY(-6px) scale(1.01); } 80% { transform:translateY(2px); } 100% { transform:none; } }
+@keyframes slideOpen { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+.pop { animation:pop .45s cubic-bezier(.34,1.56,.64,1); }
+.tile.pop[aria-checked="true"] .ctl, .opt.pop[aria-checked="true"] .box { animation:checkPop .25s cubic-bezier(.34,1.56,.64,1); }
+.drop.ok.anim { animation:dropPop .6s cubic-bezier(.34,1.56,.64,1); }
+.drop.ok.anim .ic { animation:checkPop .5s .1s cubic-bezier(.34,1.56,.64,1) both; }
+.btn.nudge { animation:nudge 1.1s ease-out; }
+.summary.anim { animation:fadeIn .3s .3s ease-out both; }
+.drop.err.anim { animation:shake .45s ease-in-out; }
+.tpl.pulse { animation:pulse .5s .6s ease-in-out; }
+.anim-in .summary-card > p { animation:fadeUp .3s ease-out both; }
+.anim-in .num { animation:riseIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+.anim-in .num:nth-child(1) { animation-delay:.2s; } .anim-in .num:nth-child(2) { animation-delay:.35s; } .anim-in .num:nth-child(3) { animation-delay:.5s; }
+.anim-in .summary-card > .note { animation:fadeUp .4s .8s ease-out both; }
+.done-card.anim { animation:springUp .6s .45s cubic-bezier(.34,1.3,.64,1) both; }
+.disclosure[data-open="true"] .content { animation:slideOpen .3s ease-in-out; }
+.toast.show { transition:opacity .2s, transform .35s cubic-bezier(.34,1.56,.64,1); }
+.copied { background:var(--color-bg-success-subtle) !important; color:var(--color-text-success) !important; border-color:var(--color-border-success) !important; animation:fadeIn .2s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.15s !important; animation-delay:0s !important; animation-iteration-count:1 !important; transition-duration:.15s !important; }
+  .pop, .drop.ok.anim, .drop.err.anim, .btn.nudge, .tpl.pulse, .anim-in .num, .done-card.anim, .tile.pop .ctl, .opt.pop .box, .drop.ok.anim .ic { animation-name:fadeIn !important; }
+  .btn:active:not(:disabled) { transform:none; }
+  .shimmer::after { animation:none; width:100%; opacity:.4; }
+}
+
 /* Responsive */
 @media (max-width: 860px) {
   .body { grid-template-columns:1fr; }
@@ -290,14 +348,14 @@ table.data .r { text-align:right; font-family:var(--font-mono); }
   <header class="header">
     <img src="assets/HRA-logo-white.png" alt="HRA — The Power of Collective">
     <span class="divider" aria-hidden="true"></span>
-    <span class="t-heading-md appname">Geo Targeting Tool</span>
+    <span class="t-heading-md appname">Campaign Toolkit</span>
     <span class="spacer"></span>
     <div class="file-pill" id="filePill" aria-live="polite"></div>
   </header>
   <div class="body">
     <nav class="nav" aria-label="Workflow steps">
-      <span class="t-overline" id="stepOf">Step 1 of 5</span>
-      <div class="progress" aria-hidden="true"><i id="progressFill" style="width:20%"></i></div>
+      <span class="t-overline" id="stepOf">Step 1 of 6</span>
+      <div class="progress" id="progress" aria-hidden="true"></div>
       <div id="steps"></div>
       <div class="grow"></div>
       <div class="privacy t-body-sm muted"><b style="color:var(--color-text-primary)">Your data stays on this computer</b>The Excel is read in your browser. Nothing is uploaded.</div>
@@ -321,11 +379,13 @@ const IC = {
   info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
   cc:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>', xc:'<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>', chevR:'<path d="m9 18 6-6-6-6"/>', chevL:'<path d="m15 18-6-6 6-6"/>',
   ban:'<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>', file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
-  loader:'<path d="M21 12a9 9 0 1 1-6.22-8.56"/>', reset:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', copy:'<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/>', plus:'<path d="M5 12h14"/><path d="M12 5v14"/>'
+  loader:'<path d="M21 12a9 9 0 1 1-6.22-8.56"/>', reset:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', copy:'<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/>', plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+  mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>', target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', sheet:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M12 13v8"/>'
 };
 const icon = (n, cls='') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => n.toLocaleString('en-US');
+const orList = a => a.length < 2 ? (a[0] || '') : `${a.slice(0, -1).join(', ')} or ${a[a.length - 1]}`;
 const plural = (n, one, many) => `${fmt(n)} ${n === 1 ? one : (many || one + 's')}`;
 
 /* ============================================================
@@ -338,12 +398,17 @@ const STATUS_META = {
 };
 const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'District of Columbia'};
 const REQUIRED = ['Store','State','Zip Code'];
+// Clean display names for vendor headers that are misspelled or doubled in the CRM export
+const VENDOR_NAMES = { 'redbull':'Red Bull', 'keuirg dr. pepper':'Keurig Dr Pepper', 'state fair mini donuts mini donuts':'State Fair Mini Donuts' };
+const vendorName = h => { const t = String(h).trim().replace(/\s+/g, ' '); return VENDOR_NAMES[t.toLowerCase()] || t; };
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const TEMPLATE_URL = 'assets/HRA_Campaign_Toolkit_Template.xlsx';
 const titleCase = s => s.toLowerCase().replace(/\b([a-z])/g, m => m.toUpperCase()).replace(/\bMc([a-z])/g,(m,c)=>'Mc'+c.toUpperCase());
 
 const S = {
-  step: 1, maxStep: 1,
+  step: 1, maxStep: 1, task: '', hasEmail: false, fx: null, done: null,
   fileName: '', stores: [], vendors: [], issues: [],
-  vendorSel: [], multi: false, match: 'any', statuses: new Set(['Yes','Open Ticket']), vendorQuery: '', statusOpen: false,
+  vendorSel: [], multi: false, match: 'any', statuses: new Set(['Yes','Open Ticket','Pending']), vendorQuery: '', statusOpen: false,
   states: new Set(), narrow: 'all', counties: new Set(), countyQuery: '',
   restored: new Set(), skipOpen: false, breakdownOpen: false,
   format: 'zip', radius: 5, campaign: '', loadState: 'idle', loadError: ''
@@ -361,10 +426,12 @@ function parseWorkbook(buf, name) {
     if (REQUIRED.every(c => h.some(k => k.trim().toLowerCase() === c.toLowerCase()))) { rows = r; headers = h; break; }
   }
   if (!rows) {
+    const emptyTemplate = names.some(n => { const [h = []] = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1 }); return REQUIRED.every(c => h.some(k => String(k).trim().toLowerCase() === c.toLowerCase())); });
+    if (emptyTemplate) throw new Error('The sheet has the right columns but no stores yet. Add at least one store row, save, and upload again.');
     throw new Error(`We couldn't find a sheet with the columns ${REQUIRED.join(', ')}. Upload the Store Classification Report export.`);
   }
   const col = n => headers.find(k => k.trim().toLowerCase() === n.toLowerCase());
-  const C = { id: col('HRA Member ID'), store: col('Store'), street: col('Street'), city: col('City'), state: col('State'), zip: col('Zip Code'), county: col('County') };
+  const C = { id: col('HRA Member ID'), store: col('Store'), street: col('Street'), city: col('City'), state: col('State'), zip: col('Zip Code'), county: col('County'), email: col('Email'), first: col('First Name'), last: col('Last Name') };
   // Vendor columns = every value is a vendor status (or blank)
   const allowed = new Set(['', ...STATUS]);
   const vendorCols = headers.filter(h => !Object.values(C).includes(h)).filter(h => {
@@ -373,7 +440,7 @@ function parseWorkbook(buf, name) {
     return seen > 0;
   });
   if (!vendorCols.length) throw new Error('No vendor columns found. Vendor columns should contain Yes / No / Pending / Open Ticket / Not Applicable.');
-  const issues = { noCounty: 0, noZip: 0 };
+  const issues = { noCounty: 0, noZip: 0, noEmail: 0 };
   // Same place typed with different casing ("DeKalb" / "DEKALB" / "Dekalb") → keep the most common spelling
   const spelling = (key) => {
     const tally = new Map();
@@ -395,14 +462,17 @@ function parseWorkbook(buf, name) {
     const county = countyName(r[C.county]);
     if (!county) issues.noCounty++;
     if (!zip) issues.noZip++;
-    const v = {}; for (const h of vendorCols) v[h.trim()] = String(r[h]).trim();
+    const v = {}; for (const h of vendorCols) v[vendorName(h)] = String(r[h]).trim();
+    const email = C.email ? String(r[C.email]).trim() : '';
+    if (C.email && !EMAIL_RE.test(email)) issues.noEmail++;
     return {
       id: String(C.id ? r[C.id] : '').trim(), store: String(r[C.store]).trim(), street: C.street ? String(r[C.street]).trim() : '',
       city: cityName(r[C.city]), state: String(r[C.state]).trim().toUpperCase(), zip,
-      county, v
+      county, v, email: EMAIL_RE.test(email) ? email : '',
+      first: C.first ? String(r[C.first]).trim() : '', last: C.last ? String(r[C.last]).trim() : ''
     };
   }).filter(s => s.state);
-  return { stores, vendors: vendorCols.map(h => h.trim()), issues, fileName: name };
+  return { stores, vendors: [...new Set(vendorCols.map(vendorName))], issues, fileName: name, hasEmail: !!C.email };
 }
 
 /* Derived data — recomputed from state on every render */
@@ -431,19 +501,41 @@ function compute() {
   const areaByCounty = new Map(); for (const s of area) if (s.county) areaByCounty.set(`${s.county}|${s.state}`, (areaByCounty.get(`${s.county}|${s.state}`) || 0) + 1);
   return { area, target, zips, targetZips, skipped, cities, counties, areaByCounty };
 }
+/* Email list: one row per email address; an owner's stores are grouped together */
+function emailList() {
+  const target = S.stores.filter(s => S.states.has(s.state) && carries(s));
+  const map = new Map(); let noEmail = 0;
+  for (const s of target) {
+    if (!s.email) { noEmail++; continue; }
+    const k = s.email.toLowerCase();
+    const e = map.get(k) || { email: s.email, first: s.first, last: s.last, stores: [], states: new Set() };
+    if (!e.first && s.first) e.first = s.first; if (!e.last && s.last) e.last = s.last;
+    e.stores.push(s.store); e.states.add(s.state); map.set(k, e);
+  }
+  const list = [...map.values()].sort((a, b) => a.email.localeCompare(b.email));
+  const withEmail = target.length - noEmail;
+  const byState = new Map();
+  for (const s of target) { const b = byState.get(s.state) || { stores: 0, emails: new Set() }; b.stores++; if (s.email) b.emails.add(s.email.toLowerCase()); byState.set(s.state, b); }
+  return { target, list, noEmail, merged: withEmail - list.length, byState };
+}
 const vendorLabel = () => S.vendorSel.length === 1 ? S.vendorSel[0] : S.vendorSel.length === 2 ? S.vendorSel.join(S.match === 'all' ? ' + ' : ' or ') : `${S.vendorSel.length} vendors`;
 const stateLabel = () => { const a = [...S.states].map(s => STATE_NAMES[s] || s); return a.length === 1 ? a[0] : a.length === 2 ? a.join(' & ') : `${a.length} states`; };
 
 /* ============================================================
    Rendering
    ============================================================ */
-const STEPS = [['Upload file','Store Classification Excel'],['Choose vendor','Who is the campaign for?'],['Choose area','Where should ads run?'],['Review','Check what you\'ll target'],['Export','Send to Google Ads']];
+const STEPS_ADS = [['Upload file','Store data Excel'],['Choose task','Ads or emails'],['Choose vendor','Who is the campaign for?'],['Choose area','Where should ads run?'],['Review','Check what you\'ll target'],['Export','Send to Google Ads']];
+const STEPS_EMAIL = [['Upload file','Store data Excel'],['Choose task','Ads or emails'],['Choose vendor','Who is the email for?'],['Choose states','Where are the members?'],['Review','Check the list'],['Export','Mailchimp CSV']];
+const STEPS_NONE = [['Upload file','Store data Excel'],['Choose task','Ads or emails'],['Choose vendor','Who is it for?'],['Choose area','Where should it reach?'],['Review','Check the result'],['Export','Download the file']];
+const steps = () => S.task === 'email' ? STEPS_EMAIL : S.task === 'ads' ? STEPS_ADS : STEPS_NONE;
+const isEmail = () => S.task === 'email';
+const N_STEPS = 6;
 const $ = id => document.getElementById(id);
 
 function renderNav() {
-  $('stepOf').textContent = `Step ${S.step} of 5`;
-  $('progressFill').style.width = `${S.step * 20}%`;
-  $('steps').innerHTML = STEPS.map(([t, c], i) => {
+  $('stepOf').textContent = `Step ${S.step} of ${N_STEPS}`;
+  $('progress').innerHTML = Array.from({ length: N_STEPS }, (_, i) => `<i class="${i < S.step ? 'on' : ''}"></i>`).join('');
+  $('steps').innerHTML = steps().map(([t, c], i) => {
     const n = i + 1, cls = n === S.step ? 'current' : n < S.step || n <= S.maxStep && n !== S.step && canReach(n) ? 'done' : '';
     const dot = cls === 'done' ? icon('check') : n;
     return `<button class="step ${cls}" ${cls === 'done' ? `data-go="${n}"` : 'tabindex="-1" aria-disabled="true"'} ${n === S.step ? 'aria-current="step"' : ''}>
@@ -456,45 +548,52 @@ function renderNav() {
 function canReach(n) {
   if (n <= 1) return true;
   if (n === 2) return S.stores.length > 0;
-  if (n === 3) return canReach(2) && S.vendorSel.length > 0;
-  if (n >= 4) return canReach(3) && S.states.size > 0 && (S.narrow === 'all' || S.counties.size > 0);
+  if (n === 3) return canReach(2) && !!S.task;
+  if (n === 4) return canReach(3) && S.vendorSel.length > 0 && S.statuses.size > 0;
+  if (n >= 5) return canReach(4) && S.states.size > 0 && (isEmail() || S.narrow === 'all' || S.counties.size > 0);
 }
 function bar(html) { $('bar').innerHTML = html; }
 const btn = (cls, label, attrs = '', ic = '') => `<button class="btn btn-${cls}" ${attrs}>${ic ? icon(ic) : ''}${label}</button>`;
 const backBtn = () => btn('ghost', 'Back', 'data-act="back"', 'chevL');
 
-function tile({ type, checked, title, cap, tag, attrs = '', disabled }) {
-  return `<button class="tile" role="${type === 'radio' ? 'radio' : 'checkbox'}" aria-checked="${!!checked}" ${disabled ? 'aria-disabled="true"' : ''} ${attrs}>
-    <span class="ctl ${type === 'radio' ? 'radio' : 'check'}">${type === 'radio' ? '' : icon('check')}</span>
+function tile({ type, checked, title, cap, tag, attrs = '', disabled, key, lead = '' }) {
+  const pop = key && S.fx && S.fx.pick === key ? ' pop' : '';
+  return `<button class="tile${pop}" role="${type === 'radio' ? 'radio' : 'checkbox'}" aria-checked="${!!checked}" ${disabled ? 'aria-disabled="true"' : ''} ${attrs}>
+    <span class="ctl ${type === 'radio' ? 'radio' : 'check'}">${type === 'radio' ? '' : icon('check')}</span>${lead}
     <span class="tx"><span class="ttl">${esc(title)}${tag ? `<span class="tag">${esc(tag)}</span>` : ''}</span><span class="cap">${cap}</span></span></button>`;
 }
-const opt = ({ checked, label, count, attrs }) => `<button class="opt" role="checkbox" aria-checked="${!!checked}" ${attrs}><span class="box">${icon('check')}</span><span class="lbl">${esc(label)}</span><span class="cnt">${count}</span></button>`;
+const opt = ({ checked, label, count, attrs, key }) => `<button class="opt${key && S.fx && S.fx.pick === key ? ' pop' : ''}" role="checkbox" aria-checked="${!!checked}" ${attrs}><span class="box">${icon('check')}</span><span class="lbl">${esc(label)}</span><span class="cnt">${count}</span></button>`;
 const badge = st => { const m = STATUS_META[st]; return `<span class="badge ${m.cls}">${icon(m.ic)}${m.label}</span>`; };
 const question = (q, help) => `<div class="question"><h1 class="t-display" tabindex="-1" id="q">${q}</h1><p class="t-body-lg">${help}</p></div>`;
 
 function render(focus = false) {
   renderNav();
   const v = $('view');
-  ({ 1: viewUpload, 2: viewVendor, 3: viewArea, 4: viewReview, 5: viewExport })[S.step](v);
+  v.classList.remove('anim-in');
+  ({ 1: viewUpload, 2: viewTask, 3: viewVendor, 4: viewArea, 5: viewReview, 6: viewExport })[S.step](v);
   if (focus) { $('scroll').scrollTop = 0; const q = $('q'); q && q.focus({ preventScroll: true }); }
+  const fx = S.fx; S.fx = null;   // one-shot motion flags (see motion spec)
+  if (fx && fx.countUp) countUp(v);
+  if (fx && fx.fly) flyFile();
 }
 
 /* ---------- Step 1: Upload ---------- */
 function viewUpload(v) {
-  const st = S.loadState;
+  const st = S.loadState, fx = S.fx || {};
   let dz;
-  if (st === 'loading') dz = `<div class="drop" aria-busy="true"><div class="ic">${icon('loader', 'spin')}</div><div class="t-heading-md">Reading ${esc(S.fileName)}…</div><div class="muted">Checking sheets and columns</div></div>`;
+  if (st === 'loading') dz = `<div class="drop" aria-busy="true"><div class="ic">${icon('loader', 'spin')}</div><div class="t-heading-md">Reading ${esc(S.fileName)}…</div><div class="shimmer" role="progressbar" aria-label="Reading the file"></div><div class="muted">Checking sheets and columns</div></div>`;
   else if (st === 'ok') {
     const states = new Set(S.stores.map(s => s.state)).size;
-    dz = `<div class="drop ok" role="button" tabindex="0" data-act="pick"><div class="ic">${icon('cc')}</div><div class="t-heading-md">${esc(S.fileName)} is ready</div><div style="color:var(--color-text-success)">${fmt(S.stores.length)} stores · ${S.vendors.length} vendors · ${states} states found</div></div>`;
-  } else if (st === 'err') dz = `<div class="drop err" role="button" tabindex="0" data-act="pick"><div class="ic">${icon('xc')}</div><div class="t-heading-md">That file didn't work</div><div style="color:var(--color-text-danger)">${esc(S.loadError)}</div><div class="faint t-body-sm">Click to choose another file</div></div>`;
-  else dz = `<div class="drop" role="button" tabindex="0" data-act="pick" id="drop"><div class="ic">${icon('upload')}</div><div class="t-heading-md">Drop the Store Classification Excel here</div><div class="muted">or click to browse · .xlsx</div></div>`;
+    dz = `<div class="drop ok${fx.loaded ? ' anim' : ''}" role="button" tabindex="0" data-act="pick"><div class="ic">${icon('cc')}</div><div class="t-heading-md">${esc(S.fileName)} is ready</div><div style="color:var(--color-text-success)">${fmt(S.stores.length)} stores · ${S.vendors.length} vendors · ${states} states found</div></div>`;
+  } else if (st === 'err') dz = `<div class="drop err${fx.error ? ' anim' : ''}" role="button" tabindex="0" data-act="pick"><div class="ic">${icon('xc')}</div><div class="t-heading-md">That file didn't work</div><div style="color:var(--color-text-danger)">${esc(S.loadError)}</div><div class="faint t-body-sm">Click to choose another file, or use the HRA template below</div></div>`;
+  else dz = `<div class="drop" role="button" tabindex="0" data-act="pick" id="drop"><div class="ic">${icon('upload')}</div><div class="t-heading-md">Drop the Store Classification Excel here</div><div class="muted">or click to browse · CRM report or HRA template (.xlsx)</div></div>`;
   const notes = [];
   if (st === 'ok') {
     if (S.issues.noCounty) notes.push(`<div class="note note-warning">${icon('alert')}<div class="tx">${plural(S.issues.noCounty, 'store has', 'stores have')} no county. They'll still be included by ZIP code.</div></div>`);
     if (S.issues.noZip) notes.push(`<div class="note note-warning">${icon('alert')}<div class="tx">${plural(S.issues.noZip, 'store has', 'stores have')} no valid ZIP code and will be left out of ZIP exports.</div></div>`);
   }
-  v.innerHTML = question('Start with your store list', 'Upload the Store Classification Report from the CRM. It stays on this computer.') + dz + notes.join('');
+  const tpl = st === 'ok' ? '' : `<div class="tpl${fx.error ? ' pulse' : ''}">${icon('sheet')}<div class="tx">No CRM report? Download the HRA template. All 46 vendors are already columns with Yes / No dropdowns, so you only add your stores.</div><a class="btn btn-secondary" href="${TEMPLATE_URL}" download data-act="template">${icon('download')}Download template (.xlsx)</a></div>`;
+  v.innerHTML = question('Start with your store list', 'Upload the Store Classification Report from the CRM, or the HRA template once you\'ve filled it in. It stays on this computer.') + dz + notes.join('') + tpl;
   const drop = v.querySelector('.drop');
   if (drop && st !== 'loading') {
     drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
@@ -502,8 +601,20 @@ function viewUpload(v) {
     drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) loadFile(f); });
   }
   bar(st === 'ok'
-    ? `${btn('ghost', 'Use a different file', 'data-act="pick"', 'reset')}<span class="summary">${fmt(S.stores.length)} stores ready</span>${btn('primary', 'Continue', 'data-act="next"', 'chevR')}`
-    : `<span class="summary">${st === 'err' ? 'Fix the file to continue' : 'Upload a file to continue'}</span>${btn('primary', 'Continue', 'disabled', 'chevR')}`);
+    ? `${btn('ghost', 'Use a different file', 'data-act="pick"', 'reset')}<span class="summary${fx.loaded ? ' anim' : ''}">${fmt(S.stores.length)} stores ready</span>${btn(`primary${fx.loaded ? ' nudge' : ''}`, 'Continue', 'data-act="next"', 'chevR')}`
+    : `<span class="summary">${st === 'err' ? 'Fix the file to continue' : st === 'loading' ? 'Reading the file…' : 'Upload a file to continue'}</span>${btn('primary', 'Continue', 'disabled', 'chevR')}`);
+}
+
+/* ---------- Step 2: Choose task ---------- */
+function viewTask(v) {
+  const emailOk = S.hasEmail;
+  v.innerHTML = question('What do you want to make?', 'One file, two jobs. Pick one now. You can come back for the other without uploading again.') + `
+    <div class="stack tasks${S.task ? ' has-pick' : ''}" role="radiogroup" aria-label="Task">
+      ${tile({ type: 'radio', checked: S.task === 'ads', title: 'Ad locations for Google Ads', cap: 'ZIP, city and county lists for areas where stores carry a vendor', attrs: 'data-task="ads"', key: 'task:ads', lead: `<span class="task-ic">${icon('target')}</span>` })}
+      ${tile({ type: 'radio', checked: S.task === 'email', title: 'Member email list for Mailchimp', tag: 'New', cap: emailOk ? 'Emails of members whose stores are subscribed to a vendor, by state' : 'This file has no Email column, so email lists aren\'t available', disabled: !emailOk, attrs: 'data-task="email"', key: 'task:email', lead: `<span class="task-ic">${icon('mail')}</span>` })}
+    </div>`;
+  const label = S.task === 'email' ? 'Member email list selected' : S.task === 'ads' ? 'Ad locations selected' : 'Pick what you want to make';
+  bar(`${backBtn()}<span class="summary">${label}</span>${btn(`primary${S.task && (S.fx || {}).pick ? ' nudge' : ''}`, 'Continue', S.task ? 'data-act="next"' : 'disabled', 'chevR')}`);
 }
 
 /* ---------- Step 2: Vendor ---------- */
@@ -511,18 +622,19 @@ function viewVendor(v) {
   const q = S.vendorQuery.trim().toLowerCase();
   const counts = S.vendors.map(n => [n, vendorCount(n)]).sort((a, b) => b[1] - a[1]);
   const list = q ? counts.filter(([n]) => n.toLowerCase().includes(q)) : counts.slice(0, S.showAllVendors ? counts.length : 8);
-  const type = S.multi ? 'checkbox' : 'radio';
-  const tiles = list.map(([n, c]) => tile({ type, checked: S.vendorSel.includes(n), title: n, cap: c ? `${fmt(c)} stores carry it` : 'No stores carry it', disabled: !c, attrs: `data-vendor="${esc(n)}"` })).join('');
-  const statusSummary = [...S.statuses].map(s => STATUS_META[s].label).join(' or ') || 'nothing (pick at least one)';
-  v.innerHTML = question('Which vendor is this campaign for?', 'Pick the brand you\'re running ads for. We\'ll only target areas where stores carry it.') + `
+  const em = isEmail(); const verb = em ? 'subscribed' : 'carry it';
+  const type = S.multi && !em ? 'checkbox' : 'radio';
+  const tiles = list.map(([n, c]) => tile({ type, checked: S.vendorSel.includes(n), title: n, cap: c ? `${fmt(c)} stores ${verb}` : `No stores ${verb}`, disabled: !c, attrs: `data-vendor="${esc(n)}"`, key: `vendor:${n}` })).join('');
+  const statusSummary = orList([...S.statuses].map(s => STATUS_META[s].label)) || 'nothing (pick at least one)';
+  v.innerHTML = (em ? question('Which vendor is this email for?', `We'll list members whose store is subscribed to this vendor: marked ${esc(statusSummary)}.`) : question('Which vendor is this campaign for?', 'Pick the brand you\'re running ads for. We\'ll only target areas where stores carry it.')) + `
     <label class="search ${S.vendorQuery ? 'has-value' : ''}">${icon('search')}<span class="sr-only">Search vendors</span><input id="vq" placeholder="Search all ${S.vendors.length} vendors…" value="${esc(S.vendorQuery)}" autocomplete="off"><button class="clear" data-act="clearVq" aria-label="Clear search">${icon('x')}</button></label>
     <div><div class="t-overline" style="margin-bottom:var(--space-md)">${q ? `${list.length} match${list.length === 1 ? '' : 'es'}` : 'Most carried'}</div>
       ${list.length ? `<div class="grid2" role="${type === 'radio' ? 'radiogroup' : 'group'}" aria-label="Vendors">${tiles}</div>` : `<div class="note note-info">${icon('info')}<div class="tx">No vendor matches "${esc(S.vendorQuery)}". Check the spelling.</div></div>`}
       ${!q && counts.length > 8 ? `<div style="margin-top:var(--space-md)"><button class="link" data-act="allVendors">${S.showAllVendors ? 'Show fewer' : `Show all ${counts.length} vendors`}</button></div>` : ''}</div>
-    ${S.multi ? `<div class="panel stack"><div class="t-label-md">Your ads should reach stores that carry</div><div class="seg" role="group" aria-label="Match mode"><button aria-pressed="${S.match === 'any'}" data-match="any">Any of them</button><button aria-pressed="${S.match === 'all'}" data-match="all">All of them</button></div><div class="t-body-sm faint">${S.match === 'any' ? 'Wider reach. Good for co-op campaigns.' : 'Narrower. Only stores stocking every selected vendor.'}</div><div><button class="link" data-act="single">Back to one vendor</button></div></div>`
+    ${em ? '' : S.multi ? `<div class="panel stack"><div class="t-label-md">Your ads should reach stores that carry</div><div class="seg" role="group" aria-label="Match mode"><button aria-pressed="${S.match === 'any'}" data-match="any">Any of them</button><button aria-pressed="${S.match === 'all'}" data-match="all">All of them</button></div><div class="t-body-sm faint">${S.match === 'any' ? 'Wider reach. Good for co-op campaigns.' : 'Narrower. Only stores stocking every selected vendor.'}</div><div><button class="link" data-act="single">Back to one vendor</button></div></div>`
       : `<div><button class="link" data-act="multi" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">${icon('plus').replace('<svg', '<svg style="width:16px;height:16px"')}Add another vendor (co-op campaign)</button></div>`}
-    <div class="disclosure" data-open="${S.statusOpen}"><button data-act="toggleStatus" aria-expanded="${S.statusOpen}">${icon('chevR', 'chev')}<span class="tx"><span class="t-label-md" style="display:block">Advanced: what counts as "carries"</span><span class="t-body-sm muted">Stores marked ${statusSummary} in the Excel</span></span><span class="act">${S.statusOpen ? 'Hide' : 'Change'}</span></button>
-      <div class="content">${STATUS.map(st => `<button class="opt" role="checkbox" aria-checked="${S.statuses.has(st)}" data-status="${st}"><span class="box">${icon('check')}</span><span class="lbl">${badge(st)}</span><span class="cnt">${S.vendorSel.length === 1 ? fmt(S.stores.filter(s => s.v[S.vendorSel[0]] === st).length) : ''}</span></button>`).join('')}</div></div>`;
+    <div class="disclosure" data-open="${S.statusOpen}"><button data-act="toggleStatus" aria-expanded="${S.statusOpen}">${icon('chevR', 'chev')}<span class="tx"><span class="t-label-md" style="display:block">Advanced: what counts as "${em ? 'subscribed' : 'carries'}"</span><span class="t-body-sm muted">Stores marked ${statusSummary} in the Excel</span></span><span class="act">${S.statusOpen ? 'Hide' : 'Change'}</span></button>
+      <div class="content">${STATUS.map(st => `<button class="opt${S.fx && S.fx.pick === `status:${st}` ? ' pop' : ''}" role="checkbox" aria-checked="${S.statuses.has(st)}" data-status="${st}"><span class="box">${icon('check')}</span><span class="lbl">${badge(st)}</span><span class="cnt">${S.vendorSel.length === 1 ? fmt(S.stores.filter(s => s.v[S.vendorSel[0]] === st).length) : ''}</span></button>`).join('')}</div></div>`;
   const inp = $('vq'); inp.addEventListener('input', e => { S.vendorQuery = e.target.value; const pos = e.target.selectionStart; render(); const n = $('vq'); n.focus(); n.setSelectionRange(pos, pos); });
   const n = S.vendorSel.length ? S.stores.filter(carries).length : 0;
   bar(`${backBtn()}<span class="summary">${S.vendorSel.length ? `${esc(vendorLabel())} selected · ${fmt(n)} stores` : 'Pick a vendor to continue'}</span>${btn('primary', 'Continue', S.vendorSel.length && S.statuses.size ? 'data-act="next"' : 'disabled', 'chevR')}`);
@@ -535,17 +647,18 @@ function viewArea(v) {
   for (const s of carrying) byState.get(s.state).hit++;
   const states = [...byState.entries()].sort((a, b) => b[1].hit - a[1].hit);
   const vl = esc(vendorLabel());
-  let html = question('Where should the ads run?', `Choose one or more states. Numbers show how many stores there carry ${vl}.`) +
-    `<div class="grid2" role="group" aria-label="States">${states.map(([st, e]) => tile({ type: 'checkbox', checked: S.states.has(st), title: STATE_NAMES[st] || st, cap: `${fmt(e.hit)} of ${plural(e.all, 'store')}`, disabled: !e.hit && !S.states.has(st), attrs: `data-state="${st}"` })).join('')}</div>
+  const em = isEmail();
+  let html = (em ? question('Which states should the email go to?', `Choose one or more. Numbers show stores subscribed to ${vl}.`) : question('Where should the ads run?', `Choose one or more states. Numbers show how many stores there carry ${vl}.`)) +
+    `<div class="grid2" role="group" aria-label="States">${states.map(([st, e]) => tile({ type: 'checkbox', checked: S.states.has(st), title: STATE_NAMES[st] || st, cap: `${fmt(e.hit)} of ${plural(e.all, 'store')}`, disabled: !e.hit && !S.states.has(st), attrs: `data-state="${st}"`, key: `state:${st}` })).join('')}</div>
      <div class="row"><button class="link" data-act="allStates">Select all ${states.filter(([, e]) => e.hit).length} states</button><button class="link" data-act="clearStates">Clear</button></div>`;
-  if (S.states.size) {
+  if (S.states.size && !em) {
     const sl = esc(stateLabel());
     const inSel = carrying.filter(s => S.states.has(s.state));
     const zipN = new Set(inSel.map(s => s.zip).filter(Boolean)).size;
     html += `<div class="stack" style="gap:var(--space-md);margin-top:var(--space-lg)"><h2 class="t-heading-lg" style="color:var(--color-text-brand)">Run ads across all of ${sl}?</h2>
       <div class="stack" role="radiogroup" aria-label="Narrow down">
-        ${tile({ type: 'radio', checked: S.narrow === 'all', title: `Yes, all of ${stateLabel()}`, cap: `${fmt(zipN)} ZIP codes · ${fmt(inSel.length)} stores`, tag: 'Recommended', attrs: 'data-narrow="all"' })}
-        ${tile({ type: 'radio', checked: S.narrow === 'counties', title: 'No, only some counties', cap: 'Pick counties below. We\'ll include their ZIP codes.', attrs: 'data-narrow="counties"' })}
+        ${tile({ type: 'radio', checked: S.narrow === 'all', title: `Yes, all of ${stateLabel()}`, cap: `${fmt(zipN)} ZIP codes · ${fmt(inSel.length)} stores`, tag: 'Recommended', attrs: 'data-narrow="all"', key: 'narrow:all' })}
+        ${tile({ type: 'radio', checked: S.narrow === 'counties', title: 'No, only some counties', cap: 'Pick counties below. We\'ll include their ZIP codes.', attrs: 'data-narrow="counties"', key: 'narrow:counties' })}
       </div></div>`;
     if (S.narrow === 'counties') {
       const multiState = S.states.size > 1;
@@ -555,26 +668,45 @@ function viewArea(v) {
       html += `<div class="panel stack" style="gap:var(--space-sm)">
         <label class="search ${S.countyQuery ? 'has-value' : ''}">${icon('search')}<span class="sr-only">Search counties</span><input id="cq" placeholder="Search ${fmt(cmap.size)} counties…" value="${esc(S.countyQuery)}" autocomplete="off"><button class="clear" data-act="clearCq" aria-label="Clear search">${icon('x')}</button></label>
         <div class="row" style="justify-content:space-between"><span class="t-body-sm faint">${rows.length} ${rows.length === 1 ? 'county' : 'counties'} with ${vl} stores${S.counties.size ? ` · ${S.counties.size} selected` : ''}</span>${S.counties.size ? '<button class="link t-body-sm" data-act="clearCounties">Clear selection</button>' : ''}</div>
-        <div class="list-scroll"><div class="grid2" style="gap:0 var(--space-lg)">${rows.map(([k, n]) => { const [st, c] = k.split('|'); return opt({ checked: S.counties.has(k), label: multiState ? `${c}, ${st}` : c, count: `${fmt(n)} stores`, attrs: `data-county="${esc(k)}"` }); }).join('') || '<div class="faint" style="padding:8px">No counties match your search.</div>'}</div></div></div>`;
+        <div class="list-scroll"><div class="grid2" style="gap:0 var(--space-lg)">${rows.map(([k, n]) => { const [st, c] = k.split('|'); return opt({ checked: S.counties.has(k), label: multiState ? `${c}, ${st}` : c, count: `${fmt(n)} stores`, attrs: `data-county="${esc(k)}"`, key: `county:${k}` }); }).join('') || '<div class="faint" style="padding:8px">No counties match your search.</div>'}</div></div></div>`;
     }
   }
   v.innerHTML = html;
   const cq = $('cq'); if (cq) cq.addEventListener('input', e => { S.countyQuery = e.target.value; const pos = e.target.selectionStart; const st = $('scroll').scrollTop; render(); $('scroll').scrollTop = st; const n = $('cq'); n.focus(); n.setSelectionRange(pos, pos); });
   const d = compute();
-  const ok = S.states.size && (S.narrow === 'all' || S.counties.size);
-  const sum = !S.states.size ? 'Pick at least one state' : S.narrow === 'counties' && !S.counties.size ? 'Pick at least one county' : `${S.narrow === 'counties' ? plural(S.counties.size, 'county', 'counties') : plural(S.states.size, 'state')} · ${fmt(d.target.length)} stores`;
+  const ok = S.states.size && (em || S.narrow === 'all' || S.counties.size);
+  const nTarget = em ? S.stores.filter(s => S.states.has(s.state) && carries(s)).length : d.target.length;
+  const sum = !S.states.size ? 'Pick at least one state' : !em && S.narrow === 'counties' && !S.counties.size ? 'Pick at least one county' : `${!em && S.narrow === 'counties' ? plural(S.counties.size, 'county', 'counties') : plural(S.states.size, 'state')} · ${fmt(nTarget)} stores`;
   bar(`${backBtn()}<span class="summary">${sum}</span>${btn('primary', 'Continue', ok ? 'data-act="next"' : 'disabled', 'chevR')}`);
 }
 
 /* ---------- Step 4: Review ---------- */
+function viewReviewEmail(v) {
+  const L = emailList(); const vl = esc(vendorLabel()); const where = esc(stateLabel());
+  if ((S.fx || {}).countUp) v.classList.add('anim-in');
+  const rows = [...L.byState.entries()].sort((a, b) => b[1].stores - a[1].stores);
+  v.innerHTML = question(`Here's your ${vl} email list`, 'Check the numbers. If something looks off, go back and change it.') + `
+    <div class="summary-card">
+      <p class="t-heading-lg" style="margin:0">${plural(L.list.length, 'member')} in ${where} ${L.list.length === 1 ? 'is' : 'are'} subscribed to ${vl}, across ${plural(L.target.length, 'store')}.</p>
+      <div class="nums"><div class="num"><span class="t-stat" data-count="${L.list.length}">${fmt(L.list.length)}</span><span class="muted">emails in the list</span></div><div class="num"><span class="t-stat" data-count="${L.merged}">${fmt(L.merged)}</span><span class="muted">repeat stores merged</span></div><div class="num dim"><span class="t-stat" data-count="${L.noEmail}">${fmt(L.noEmail)}</span><span class="muted">${L.noEmail === 1 ? 'store' : 'stores'} skipped, no email</span></div></div>
+      <div class="note note-success">${icon('cc')}<div class="tx">Owners with more than one store get the email once. All their stores are listed together in the file.</div></div>
+    </div>
+    <div class="disclosure" data-open="${S.breakdownOpen}"><button data-act="toggleBreakdown" aria-expanded="${S.breakdownOpen}">${icon('chevR', 'chev')}<span class="tx"><span class="t-label-md" style="display:block">See breakdown by state</span><span class="t-body-sm muted">${esc(rows.map(([st, b]) => `${STATE_NAMES[st] || st} ${fmt(b.stores)} stores`).join(' · '))}</span></span><span class="act">${S.breakdownOpen ? 'Hide' : 'Show'}</span></button>
+      <div class="content"><table class="data"><thead><tr><th>State</th><th class="r">Subscribed stores</th><th class="r">Emails</th></tr></thead><tbody>
+        ${rows.map(([st, b]) => `<tr><td>${esc(STATE_NAMES[st] || st)}</td><td class="r">${fmt(b.stores)}</td><td class="r">${fmt(b.emails.size)}</td></tr>`).join('')}
+      </tbody></table><div class="t-body-sm faint" style="margin-top:8px">An owner with stores in two states is counted once in each state, and once in the list.</div></div></div>`;
+  bar(`${backBtn()}<span class="summary">Everything look right?</span>${btn('accent', 'Continue to export', L.list.length ? 'data-act="next"' : 'disabled', 'download')}`);
+}
 function viewReview(v) {
+  if (isEmail()) return viewReviewEmail(v);
+  if ((S.fx || {}).countUp) v.classList.add('anim-in');
   const d = compute(); const vl = esc(vendorLabel()); const where = S.narrow === 'counties' ? `${plural(S.counties.size, 'county', 'counties')} in ${esc(stateLabel())}` : esc(stateLabel());
   const top = [...d.counties.entries()].sort((a, b) => b[1] - a[1]);
   const topLine = top.slice(0, 4).map(([k, n]) => `${k.split('|')[0]} ${fmt(n)}`).join(' · ');
   v.innerHTML = question(`Here's where your ${vl} ads will run`, 'Check the numbers. If something looks off, go back and change it.') + `
     <div class="summary-card">
       <p class="t-heading-lg" style="margin:0">Your ads will target ${plural(d.zips.length, 'ZIP code')} in ${where}, where ${plural(d.target.length, 'store sells', 'stores sell')} ${vl}.</p>
-      <div class="nums"><div class="num"><span class="t-stat">${fmt(d.target.length)}</span><span class="muted">stores carry ${vl}</span></div><div class="num"><span class="t-stat">${fmt(d.zips.length)}</span><span class="muted">ZIP codes to target</span></div><div class="num dim"><span class="t-stat">${fmt(d.skipped.length)}</span><span class="muted">ZIPs skipped</span></div></div>
+      <div class="nums"><div class="num"><span class="t-stat" data-count="${d.target.length}">${fmt(d.target.length)}</span><span class="muted">stores carry ${vl}</span></div><div class="num"><span class="t-stat" data-count="${d.zips.length}">${fmt(d.zips.length)}</span><span class="muted">ZIP codes to target</span></div><div class="num dim"><span class="t-stat" data-count="${d.skipped.length}">${fmt(d.skipped.length)}</span><span class="muted">ZIPs skipped</span></div></div>
       ${d.skipped.length ? `<div class="note note-success">${icon('cc')}<div class="tx">${plural(d.skipped.length, 'ZIP was', 'ZIPs were')} skipped automatically. No store there carries ${vl}, so ads there would waste budget.</div><button class="link" data-act="toggleSkip" aria-expanded="${S.skipOpen}">${S.skipOpen ? 'Hide list' : 'See list'}</button></div>`
         : `<div class="note note-info">${icon('info')}<div class="tx">Every ZIP in this area has at least one store that carries ${vl}. Nothing to skip.</div></div>`}
       ${S.skipOpen && d.skipped.length + S.restored.size ? `<div class="list-scroll"><table class="data"><thead><tr><th>ZIP</th><th>Area</th><th class="r">Stores</th><th></th></tr></thead><tbody>
@@ -596,7 +728,19 @@ const FORMATS = {
   radius: { title: 'Radius around each store', btn: 'Download radius file (.csv)' },
   report: { title: 'Planning report (Excel)', btn: 'Download planning report (.xlsx)' }
 };
+function viewExportEmail(v) {
+  const L = emailList(); const vl = esc(vendorLabel());
+  const tag = vendorLabel();
+  v.innerHTML = question('Download your Mailchimp list', 'Import it into the HRA MEMBERS audience. The vendor tag keeps each list separate.') + `
+    <div class="panel row" style="gap:var(--space-md)"><span class="task-ic">${icon('mail')}</span><div style="flex:1"><div class="t-heading-md">Mailchimp CSV</div><div class="muted">${plural(L.list.length, 'contact')} · Email Address, First Name, Last Name, Store, State, Tags: ${esc(tag)}</div></div></div>
+    <div class="row">${btn('accent btn-block', 'Download Mailchimp list (.csv)', 'data-act="downloadEmail" id="dlEmail"', 'download')}</div>
+    ${S.done ? `<div class="done-card${S.done.anim ? ' anim' : ''}" id="doneCard" role="status">${icon('cc')}<div><b>${esc(tag)} list downloaded</b><span>${esc(S.done.file)} · ${plural(L.list.length, 'contact')}. Next: import it into HRA MEMBERS in Mailchimp.</span></div></div>` : ''}
+    <div class="note note-info">${icon('info')}<div class="tx">In Mailchimp: Audience › Add contacts › Import contacts › Upload a file › choose HRA MEMBERS › map the columns › keep the ${esc(tag)} tag. Members who unsubscribed stay unsubscribed.</div></div>`;
+  if (S.done) S.done.anim = false;
+  bar(`${backBtn()}<span class="summary">${vl} · ${esc([...S.states].join(', '))} · ${plural(L.list.length, 'email')}</span>${btn('secondary', 'Start a new campaign', 'data-act="restart"', 'plus')}`);
+}
 function viewExport(v) {
+  if (isEmail()) return viewExportEmail(v);
   const d = compute(); const vl = esc(vendorLabel());
   if (!S.campaign) S.campaign = `${vendorLabel()} – ${stateLabel()}`;
   const withAddr = d.target.filter(s => s.street).length;
@@ -613,7 +757,7 @@ function viewExport(v) {
     report: 'Open in Excel to plan budgets per county or ZIP. It isn\'t uploaded to Google Ads.'
   };
   v.innerHTML = question('How do you want to add this to Google Ads?', 'Pick a format and download it. You can come back and export another one any time.') + `
-    <div class="stack" role="radiogroup" aria-label="Export format">${Object.entries(FORMATS).map(([k, f]) => tile({ type: 'radio', checked: S.format === k, title: f.title, cap: caps[k], tag: k === 'zip' ? 'Recommended' : '', attrs: `data-format="${k}"` })).join('')}</div>
+    <div class="stack" role="radiogroup" aria-label="Export format">${Object.entries(FORMATS).map(([k, f]) => tile({ type: 'radio', checked: S.format === k, title: f.title, cap: caps[k], tag: k === 'zip' ? 'Recommended' : '', attrs: `data-format="${k}"`, key: `format:${k}` })).join('')}</div>
     ${S.format === 'radius' ? `<div class="panel stack"><div class="row" style="flex-wrap:wrap"><label class="inline-field"><span class="t-label-md">Radius</span><input id="radius" type="number" min="1" max="50" value="${S.radius}"><span class="muted">miles</span></label><label class="inline-field" style="flex:1;min-width:260px"><span class="t-label-md">Campaign</span><input id="campaign" class="wide-input" value="${esc(S.campaign)}"></label></div><div class="t-body-sm faint">The campaign name must match the campaign in Google Ads Editor exactly.</div></div>` : ''}
     <div class="row">${btn('accent btn-block', FORMATS[S.format].btn, 'data-act="download"', 'download')}${S.format === 'zip' || S.format === 'geo' ? btn('secondary', 'Copy to clipboard', 'data-act="copy"', 'copy') : ''}</div>
     <div class="note note-info">${icon('info')}<div class="tx">${how[S.format]}</div></div>`;
@@ -665,10 +809,35 @@ function doDownload() {
     toast('Planning report downloaded', '5 sheets: summary, counties, ZIPs, skipped ZIPs and stores.');
   }
 }
+function doDownloadEmail() {
+  const L = emailList(); const tag = vendorLabel();
+  const rows = [['Email Address', 'First Name', 'Last Name', 'Store', 'State', 'Tags'], ...L.list.map(e => [e.email, e.first, e.last, e.stores.join('; '), [...e.states].sort().join('; '), tag])];
+  const file = `${slug(tag)}_${slug([...S.states].sort().join('_'))}_members.csv`;
+  downloadText(file, csv(rows));
+  S.done = { file, anim: true }; S.fx = { fly: true }; render();
+}
+function countUp(root) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  root.querySelectorAll('[data-count]').forEach((el, i) => {
+    const to = +el.dataset.count; if (!to) return;
+    const start = performance.now() + 200 + i * 150, dur = 800;
+    el.textContent = '0';
+    const tick = now => { const t = Math.min(1, Math.max(0, (now - start) / dur)); const e = 1 - Math.pow(1 - t, 3); el.textContent = fmt(Math.round(to * e)); if (t < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+}
+function flyFile() {
+  const b = $('dlEmail'), card = $('doneCard'); if (!b || !card || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r1 = b.getBoundingClientRect(), r2 = card.getBoundingClientRect();
+  const f = document.createElement('div'); f.className = 'flyer'; f.innerHTML = icon('file');
+  f.style.left = `${r1.left + r1.width / 2 - 16}px`; f.style.top = `${r1.top + 4}px`; document.body.appendChild(f);
+  const dy = r2.top + 8 - r1.top - 4;
+  f.animate([{ opacity: 0, transform: 'translateY(-6px) scale(1.4)' }, { opacity: 1, offset: .15 }, { opacity: 1, offset: .75 }, { opacity: 0, transform: `translateY(${dy}px) scale(.7) rotate(12deg)` }], { duration: 650, easing: 'cubic-bezier(.55,0,1,.45)' }).onfinish = () => f.remove();
+}
 async function doCopy() {
   const d = compute(); const text = S.format === 'zip' ? d.zips.join('\n') : geoLines(d).join('\n');
   const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); if (!ok) throw new Error('blocked'); };
-  try { try { await navigator.clipboard.writeText(text); } catch { fallback(); } toast(S.format === 'zip' ? `${plural(d.zips.length, 'ZIP')} copied` : `${plural(text.split('\n').length, 'location')} copied`, 'In Google Ads, go to Locations › Advanced search › Add locations in bulk, then paste.'); }
+  try { try { await navigator.clipboard.writeText(text); } catch { fallback(); } const cb = document.querySelector('[data-act="copy"]'); if (cb) { cb.classList.add('copied'); cb.innerHTML = `${icon('check')}Copied!`; setTimeout(() => { if (cb.isConnected) { cb.classList.remove('copied'); cb.innerHTML = `${icon('copy')}Copy to clipboard`; } }, 2000); } toast(S.format === 'zip' ? `${plural(d.zips.length, 'ZIP')} copied` : `${plural(text.split('\n').length, 'location')} copied`, 'In Google Ads, go to Locations › Advanced search › Add locations in bulk, then paste.'); }
   catch { toast('Couldn\'t copy', 'Your browser blocked the clipboard. Use Download instead.', true); }
 }
 let toastTimer;
@@ -684,38 +853,45 @@ function toast(title, body, err) {
 async function loadFile(file) {
   S.fileName = file.name; S.loadState = 'loading'; render();
   try {
+    const t0 = performance.now();
     const buf = await file.arrayBuffer();
+    await new Promise(r => setTimeout(r, Math.max(0, 500 - (performance.now() - t0))));   // let the loading shimmer be seen
     loadBuffer(buf, file.name);
-  } catch (e) { S.loadState = 'err'; S.loadError = e.message || 'The file could not be read.'; S.stores = []; render(); }
+  } catch (e) { S.loadState = 'err'; S.loadError = e.message || 'The file could not be read.'; S.stores = []; S.fx = { error: true }; render(); }
 }
 function loadBuffer(buf, name) {
   try {
     const r = parseWorkbook(buf, name);
-    Object.assign(S, { stores: r.stores, vendors: r.vendors, issues: r.issues, fileName: r.fileName, loadState: 'ok', loadError: '', vendorSel: [], states: new Set(), counties: new Set(), restored: new Set(), narrow: 'all', maxStep: 1 });
-  } catch (e) { S.loadState = 'err'; S.loadError = e.message || 'The file could not be read.'; S.stores = []; }
+    Object.assign(S, { stores: r.stores, vendors: r.vendors, issues: r.issues, fileName: r.fileName, hasEmail: r.hasEmail, loadState: 'ok', loadError: '', task: '', vendorSel: [], multi: false, states: new Set(), counties: new Set(), restored: new Set(), narrow: 'all', maxStep: 1, done: null, fx: { loaded: true } });
+  } catch (e) { S.loadState = 'err'; S.loadError = e.message || 'The file could not be read.'; S.stores = []; S.fx = { error: true }; }
   render();
 }
-function go(n) { if (n < 1 || n > 5 || !canReach(n)) return; S.step = n; S.maxStep = Math.max(S.maxStep, n); render(true); }
+function go(n) { if (n < 1 || n > N_STEPS || !canReach(n)) return; if (n === 5 && S.step !== 5) S.fx = { ...(S.fx || {}), countUp: true }; S.step = n; S.maxStep = Math.max(S.maxStep, n); render(true); }
 function toggleSet(set, k) { set.has(k) ? set.delete(k) : set.add(k); }
 
 document.addEventListener('click', e => {
   const t = e.target.closest('button,[data-act]'); if (!t || t.disabled || t.getAttribute('aria-disabled') === 'true') return;
   const ds = t.dataset;
   if (ds.go) return go(+ds.go);
+  if (ds.task) {
+    if (S.task !== ds.task) { S.task = ds.task; S.maxStep = 2; S.done = null; S.restored = new Set(); S.campaign = ''; }
+    if (S.task === 'email') { S.multi = false; S.vendorSel = S.vendorSel.slice(0, 1); }
+    S.fx = { pick: `task:${ds.task}` }; return render();
+  }
   if (ds.vendor) {
     const n = ds.vendor;
     if (S.multi) S.vendorSel = S.vendorSel.includes(n) ? S.vendorSel.filter(x => x !== n) : [...S.vendorSel, n];
     else S.vendorSel = [n];
     // keep the chosen area; only reset things that depend on the vendor
-    S.restored = new Set(); S.maxStep = Math.min(S.maxStep, S.vendorSel.length ? 3 : 2); S.campaign = '';
-    return render();
+    S.restored = new Set(); S.maxStep = Math.min(S.maxStep, S.vendorSel.length ? 4 : 3); S.campaign = ''; S.done = null;
+    S.fx = { pick: `vendor:${n}` }; return render();
   }
   if (ds.match) { S.match = ds.match; return render(); }
-  if (ds.status) { toggleSet(S.statuses, ds.status); S.maxStep = Math.min(S.maxStep, 2); return render(); }
-  if (ds.state) { toggleSet(S.states, ds.state); for (const k of [...S.counties]) if (!S.states.has(k.split('|')[0])) S.counties.delete(k); S.restored = new Set(); S.campaign = ''; S.maxStep = 3; return render(); }
-  if (ds.narrow) { S.narrow = ds.narrow; S.maxStep = 3; return render(); }
-  if (ds.county) { toggleSet(S.counties, ds.county); S.maxStep = 3; return render(); }
-  if (ds.format) { S.format = ds.format; return render(); }
+  if (ds.status) { toggleSet(S.statuses, ds.status); S.maxStep = Math.min(S.maxStep, 3); S.done = null; S.fx = { pick: `status:${ds.status}` }; return render(); }
+  if (ds.state) { toggleSet(S.states, ds.state); for (const k of [...S.counties]) if (!S.states.has(k.split('|')[0])) S.counties.delete(k); S.restored = new Set(); S.campaign = ''; S.done = null; S.maxStep = 4; S.fx = { pick: `state:${ds.state}` }; return render(); }
+  if (ds.narrow) { S.narrow = ds.narrow; S.maxStep = 4; S.fx = { pick: `narrow:${ds.narrow}` }; return render(); }
+  if (ds.county) { toggleSet(S.counties, ds.county); S.maxStep = 4; S.fx = { pick: `county:${ds.county}` }; return render(); }
+  if (ds.format) { S.format = ds.format; S.fx = { pick: `format:${ds.format}` }; return render(); }
   if (ds.restore) { S.restored.add(ds.restore); return render(); }
   if (ds.unrestore) { S.restored.delete(ds.unrestore); return render(); }
   switch (ds.act) {
@@ -728,14 +904,15 @@ document.addEventListener('click', e => {
     case 'multi': S.multi = true; return render();
     case 'single': S.multi = false; S.vendorSel = S.vendorSel.slice(0, 1); return render();
     case 'toggleStatus': S.statusOpen = !S.statusOpen; return render();
-    case 'allStates': { const hit = new Set(S.stores.filter(carries).map(s => s.state)); S.states = hit; S.maxStep = 3; return render(); }
-    case 'clearStates': S.states = new Set(); S.counties = new Set(); return render();
+    case 'allStates': { const hit = new Set(S.stores.filter(carries).map(s => s.state)); S.states = hit; S.maxStep = 4; S.done = null; return render(); }
+    case 'clearStates': S.states = new Set(); S.counties = new Set(); S.maxStep = Math.min(S.maxStep, 4); S.done = null; return render();
     case 'clearCounties': S.counties = new Set(); return render();
     case 'toggleSkip': S.skipOpen = !S.skipOpen; return render();
     case 'toggleBreakdown': S.breakdownOpen = !S.breakdownOpen; return render();
     case 'download': return doDownload();
+    case 'downloadEmail': return doDownloadEmail();
     case 'copy': return doCopy();
-    case 'restart': Object.assign(S, { vendorSel: [], multi: false, match: 'any', states: new Set(), narrow: 'all', counties: new Set(), restored: new Set(), format: 'zip', campaign: '', maxStep: 2 }); return go(2);
+    case 'restart': Object.assign(S, { task: '', vendorSel: [], multi: false, match: 'any', states: new Set(), narrow: 'all', counties: new Set(), restored: new Set(), format: 'zip', campaign: '', done: null, maxStep: 2 }); return go(2);
   }
 });
 document.addEventListener('keydown', e => { const t = e.target.closest('[role="button"][data-act]'); if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); t.click(); } });
@@ -744,7 +921,7 @@ $('fileInput').addEventListener('change', e => { const f = e.target.files[0]; if
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => { e.preventDefault(); if (S.step === 1 && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
 
-window.geoTool = { state: S, loadBuffer, compute, go };   // handy for testing in the console
+window.geoTool = { state: S, loadBuffer, compute, emailList, go };   // handy for testing in the console
 render();
 </script>
 </body>
